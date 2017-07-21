@@ -46,6 +46,7 @@ QGCView {
     property var    _rallyPointController:  _planMasterController.rallyPointController
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property var    _videoReceiver:         QGroundControl.videoManager.videoReceiver
+    property bool   _recordingVideo:        _videoReceiver && _videoReceiver.recording
     property bool   _mainIsMap:             QGroundControl.videoManager.hasVideo ? QGroundControl.loadBoolGlobalSetting(_mainIsMapKey,  true) : true
     property bool   _isPipVisible:          QGroundControl.videoManager.hasVideo ? QGroundControl.loadBoolGlobalSetting(_PIPVisibleKey, true) : false
     property bool   _useChecklist:          QGroundControl.settingsManager.appSettings.useChecklist.rawValue
