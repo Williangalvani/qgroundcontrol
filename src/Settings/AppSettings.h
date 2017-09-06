@@ -43,6 +43,7 @@ public:
     Q_PROPERTY(Fact* defaultFirmwareType                READ defaultFirmwareType                CONSTANT)
     Q_PROPERTY(Fact* gstDebug                           READ gstDebug                           CONSTANT)
     Q_PROPERTY(Fact* followTarget                       READ followTarget                       CONSTANT)
+    Q_PROPERTY(Fact* showAdvancedSettings               READ showAdvancedSettings               CONSTANT)
 
     Q_PROPERTY(QString missionSavePath      READ missionSavePath    NOTIFY savePathsChanged)
     Q_PROPERTY(QString parameterSavePath    READ parameterSavePath  NOTIFY savePathsChanged)
@@ -82,6 +83,7 @@ public:
     Fact* defaultFirmwareType               (void);
     Fact* gstDebug                          (void);
     Fact* followTarget                      (void);
+    Fact* showAdvancedSettings              (void);
 
     QString missionSavePath     (void);
     QString parameterSavePath   (void);
@@ -119,6 +121,7 @@ public:
     static const char* defaultFirmwareTypeName;
     static const char* gstDebugName;
     static const char* followTargetName;
+    static const char* showAdvancedSettingsName;
 
     // Application wide file extensions
     static const char* parameterFileExtension;
@@ -170,6 +173,7 @@ private:
     SettingsFact* _defaultFirmwareTypeFact;
     SettingsFact* _gstDebugFact;
     SettingsFact* _followTargetFact;
+    SettingsFact* _showAdvancedSettingsFact;
 };
 
 #endif

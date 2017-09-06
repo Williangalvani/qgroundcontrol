@@ -41,6 +41,7 @@ const char* AppSettings::esriTokenName =                                "EsriTok
 const char* AppSettings::defaultFirmwareTypeName =                      "DefaultFirmwareType";
 const char* AppSettings::gstDebugName =                                 "GstreamerDebugLevel";
 const char* AppSettings::followTargetName =                             "FollowTarget";
+const char* AppSettings::showAdvancedSettingsName =                     "ShowAdvancedSettings";
 
 const char* AppSettings::parameterFileExtension =   "params";
 const char* AppSettings::planFileExtension =        "plan";
@@ -84,6 +85,7 @@ AppSettings::AppSettings(QObject* parent)
     , _defaultFirmwareTypeFact              (NULL)
     , _gstDebugFact                         (NULL)
     , _followTargetFact                     (NULL)
+    , _showAdvancedSettingsFact             (NULL)
 {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
     qmlRegisterUncreatableType<AppSettings>("QGroundControl.SettingsManager", 1, 0, "AppSettings", "Reference only");
@@ -428,3 +430,11 @@ Fact* AppSettings::followTarget(void)
     return _followTargetFact;
 }
 
+Fact* AppSettings::showAdvancedSettings(void)
+{
+    if (!_showAdvancedSettingsFact) {
+        _showAdvancedSettingsFact = _createSettingsFact(showAdvancedSettingsName);
+    }
+
+    return _showAdvancedSettingsFact;
+}

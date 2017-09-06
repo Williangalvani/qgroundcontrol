@@ -198,5 +198,11 @@
     "enumStrings":      "Never,Always,When in Follow Me Flight Mode",
     "enumValues":       "0,1,2",
     "defaultValue":     0
+},
+{
+    "name":             "ShowAdvancedSettings",
+    "shortDescription": "Option to expose advanced settings and UI elements",
+    "type":             "bool",
+    "defaultValue":     false
 }
 ]
