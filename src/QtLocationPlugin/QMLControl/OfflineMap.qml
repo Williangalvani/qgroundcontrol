@@ -55,7 +55,7 @@ QGCView {
     property var    _settings:          QGroundControl.settingsManager.flightMapSettings
 
     readonly property real minZoomLevel:    1
-    readonly property real maxZoomLevel:    20
+    readonly property real maxZoomLevel:    23
     readonly property real sliderTouchArea: ScreenTools.defaultFontPixelWidth * (ScreenTools.isTinyScreen ? 5 : (ScreenTools.isMobile ? 6 : 3))
 
     readonly property int _maxTilesForDownload: 100000

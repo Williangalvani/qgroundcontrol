@@ -44,7 +44,8 @@ Map {
     property bool   planView:                       false   ///< true: map being using for Plan view, items should be draggable
     property var    qgcView
 
-    readonly property real  maxZoomLevel: 20
+    readonly property real  maxZoomLevel: 23
+    maximumZoomLevel: 23 // inherited property
 
     property var    _activeVehicle:                 QGroundControl.multiVehicleManager.activeVehicle
     property var    activeVehicleCoordinate:        _activeVehicle ? _activeVehicle.coordinate : QtPositioning.coordinate()
