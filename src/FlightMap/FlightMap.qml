@@ -44,7 +44,8 @@ Map {
     property bool   firstVehiclePositionReceived:   false   ///< true: first vehicle position update was responded to
     property bool   planView:                       false   ///< true: map being using for Plan view, items should be draggable
 
-    readonly property real  maxZoomLevel: 20
+    readonly property real  maxZoomLevel: 23
+    maximumZoomLevel: 23 // inherited property
 
     property var    activeVehicleCoordinate:        activeVehicle ? activeVehicle.coordinate : QtPositioning.coordinate()
 
