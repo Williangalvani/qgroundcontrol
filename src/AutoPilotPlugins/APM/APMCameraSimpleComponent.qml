@@ -10,6 +10,7 @@
 
 import QtQuick              2.3
 import QtQuick.Controls     1.2
+import QtQuick.Controls.Styles  1.4
 
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
@@ -31,6 +32,9 @@ SetupPage {
             FactPanelController { id: controller; factPanel: cameraPage.viewPanel }
 
             QGCPalette { id: palette; colorGroupEnabled: true }
+
+            property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
+            property bool _oldFW:               !(_activeVehicle.firmwareMajorVersion > 3 || _activeVehicle.firmwareMinorVersion > 5 || _activeVehicle.firmwarePatchVersion >= 2)
 
             property Fact _mountRetractX:       controller.getParameterFact(-1, "MNT_RETRACT_X")
             property Fact _mountRetractY:       controller.getParameterFact(-1, "MNT_RETRACT_Y")
@@ -89,6 +93,13 @@ SetupPage {
                     gimbalSettingsLoader.sourceComponent = gimbalSettings
                 }
                 calcGimbalOutValues()
+
+//                slide.minimumValue = slide._fact.min
+//                slide.maximumValue = slide._fact.max
+                slide.minimumValue = 10
+                slide.maximumValue = 127
+                slide.value = slide._fact.value
+                slide._loadComplete = true
             }
 
             function setGimbalSettingsServoInfo(loader, channel) {
@@ -184,6 +195,59 @@ SetupPage {
             }
 
             property bool _allVisible: showAll.checked
+
+            QGCLabel {
+                visible: !_oldFW
+                text: "Camera mount tilt speed:"
+                font.family: ScreenTools.demiboldFontFamily
+            }
+
+            QGCSlider {
+                visible: !_oldFW
+                property var _fact: controller.getParameterFact(-1, "MNT_JSTICK_SPD")
+                property var _loadComplete: false
+                id: slide
+                width: gimbalDirectionTiltLoader.width
+
+                stepSize: _fact.increment ? _fact.increment : 1
+
+                // Override style to make handles smaller than default
+                style: SliderStyle {
+                    handle: Rectangle {
+                        anchors.centerIn: parent
+                        color: qgcPal.button
+                        border.color: qgcPal.buttonText
+                        border.width:   1
+                        implicitWidth: _radius * 2
+                        implicitHeight: _radius * 2
+                        radius: _radius
+
+                        property real _radius: Math.round(ScreenTools.defaultFontPixelHeight * 0.35)
+                    }
+                }
+
+                onValueChanged: {
+                    if (_loadComplete) {
+                        _fact.value = value
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onWheel: {
+                        // do nothing
+                        wheel.accepted = true;
+                    }
+                    onPressed: {
+                        // propogate/accept
+                        mouse.accepted = false;
+                    }
+                    onReleased: {
+                        // propogate/accept
+                        mouse.accepted = false;
+                    }
+                }
+            }
 
             // Gimbal axis setup
             Component {
