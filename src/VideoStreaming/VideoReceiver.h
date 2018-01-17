@@ -37,6 +37,7 @@ class VideoReceiver : public QObject
 public:
 #if defined(QGC_GST_STREAMING)
     Q_PROPERTY(bool             recording           READ    recording           NOTIFY recordingChanged)
+    Q_PROPERTY(float            volume              READ    volume              WRITE  setVolume            NOTIFY volumeChanged)
 #endif
     Q_PROPERTY(VideoSurface*    videoSurface        READ    videoSurface        CONSTANT)
     Q_PROPERTY(bool             videoRunning        READ    videoRunning        NOTIFY  videoRunningChanged)
@@ -49,6 +50,7 @@ public:
 
 #if defined(QGC_GST_STREAMING)
     virtual bool            running         () { return _running;   }
+    virtual bool            volume          () { return _running;   }
     virtual bool            recording       () { return _recording; }
     virtual bool            streaming       () { return _streaming; }
     virtual bool            starting        () { return _starting;  }
@@ -63,6 +65,7 @@ public:
 
     virtual void            grabImage       (QString imageFile);
 
+    virtual void        setVolume           (float vol) { _volume = vol; emit volumeChanged(); }
     virtual void        setShowFullScreen   (bool show) { _showFullScreen = show; emit showFullScreenChanged(); }
 
 signals:
@@ -72,6 +75,7 @@ signals:
     void showFullScreenChanged              ();
 #if defined(QGC_GST_STREAMING)
     void recordingChanged                   ();
+    void volumeChanged                      ();
     void msgErrorReceived                   ();
     void msgEOSReceived                     ();
     void msgStateChangedReceived            ();
@@ -116,6 +120,7 @@ protected:
     bool                _stop;
     Sink*               _sink;
     GstElement*         _tee;
+    float               _volume;
 
     static gboolean             _onBusMessage           (GstBus* bus, GstMessage* message, gpointer user_data);
     static GstPadProbeReturn    _unlinkCallBack         (GstPad* pad, GstPadProbeInfo* info, gpointer user_data);
