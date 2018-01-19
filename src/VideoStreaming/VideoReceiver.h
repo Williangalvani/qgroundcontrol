@@ -65,7 +65,7 @@ public:
 
     virtual void            grabImage       (QString imageFile);
 
-    virtual void        setVolume           (float vol) { _volume = vol; emit volumeChanged(); }
+    virtual void        setVolume           (float vol);
     virtual void        setShowFullScreen   (bool show) { _showFullScreen = show; emit showFullScreenChanged(); }
 
 signals:
@@ -131,10 +131,13 @@ protected:
     virtual void                _shutdownPipeline       ();
     virtual void                _cleanupOldVideos       ();
     virtual void                _setVideoSink           (GstElement* sink);
+    virtual void                _startAudio             ();
 
     GstElement*     _pipeline;
     GstElement*     _pipelineStopRec;
     GstElement*     _videoSink;
+    GstElement*     _audioPipeline;
+    GstElement*     _gstVolume;
 
     //-- Wait for Video Server to show up before starting
     QTimer          _frameTimer;
