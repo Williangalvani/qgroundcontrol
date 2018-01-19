@@ -374,6 +374,10 @@ QGCView {
                         target: _flightVideoPipControl
                         inPopup: false
                     }
+                    ParentChange {
+                        target: streamControls
+                        parent: _flightVideoPipControl
+                    }
                 },
                 State {
                     name:   "fullMode"
@@ -384,6 +388,10 @@ QGCView {
                     PropertyChanges {
                         target: _flightVideoPipControl
                         inPopup: false
+                    }
+                    ParentChange {
+                        target: streamControls
+                        parent: _flightVideo
                     }
                 },
                 State {
@@ -411,6 +419,10 @@ QGCView {
                         width: videoItem.width
                         height: videoItem.height
                     }
+                    ParentChange {
+                        target: streamControls
+                        parent: _flightVideo
+                    }
                 },
                 State {
                     name: "unpopup"
@@ -428,8 +440,67 @@ QGCView {
                         target: _flightVideoPipControl
                         inPopup: false
                     }
+                    ParentChange {
+                        target: streamControls
+                        parent: _flightVideoPipControl
+                    }
                 }
             ]
+
+            Item {
+                id: streamControls
+                anchors.fill: parent
+                z: parent.z + 1
+
+                Rectangle {
+                    id:                 audioBtn
+                    //z:                  flightDisplayViewWidgets.z + 1
+                    height:             ScreenTools.defaultFontPixelHeight * 2
+                    width:              height
+                    anchors.margins:    ScreenTools.defaultFontPixelHeight / 2
+                    anchors.bottom:     parent.bottom
+                    anchors.right:      parent.right
+                    color:              "transparent"
+                    visible:            true
+
+                    QGCColoredImage {
+                        source:         "/qmlimages/Volume.svg"
+                        color:          "white"
+                        fillMode:       Image.PreserveAspectFit
+                        mipmap:         true
+                        width:          parent.width*0.75
+                        height:         parent.height*0.75
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter:   parent.verticalCenter
+                        visible:        true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            volumeSlider.visible = !volumeSlider.visible
+                        }
+                    }
+                }
+
+                Slider {
+                    id:                 volumeSlider
+                    //z:                  _flightVideoPipControl.z + 1
+                    anchors.verticalCenter: audioBtn.verticalCenter
+                    anchors.margins:    ScreenTools.defaultFontPixelHeight / 2
+                    anchors.right:      audioBtn.left
+                    Layout.fillWidth:   true
+                    minimumValue:       0
+                    stepSize:           0.05
+                    maximumValue:       1
+                    visible:            false
+                    onValueChanged:     _videoReceiver.volume = value
+                    Component.onCompleted: value = _videoReceiver.volume
+
+                }
+            }
+
             //-- Video Streaming
             FlightDisplayViewVideo {
                 id:             videoStreaming
@@ -442,54 +513,6 @@ QGCView {
                 anchors.fill:   parent
                 visible:        !QGroundControl.videoManager.isGStreamer
                 source:         QGroundControl.videoManager.uvcEnabled ? "qrc:/qml/FlightDisplayViewUVC.qml" : "qrc:/qml/FlightDisplayViewDummy.qml"
-            }
-
-            Rectangle {
-                id:                 audioBtn
-                z:                  flightDisplayViewWidgets.z + 1
-                height:             ScreenTools.defaultFontPixelHeight * 2
-                width:              height
-                anchors.margins:    ScreenTools.defaultFontPixelHeight / 2
-                anchors.bottom:     _flightVideo.bottom
-                anchors.right:      parent.right
-                color:              "transparent"
-                visible:            true
-
-                QGCColoredImage {
-                    source:         "/qmlimages/Volume.svg"
-                    color:          "white"
-                    fillMode:       Image.PreserveAspectFit
-                    mipmap:         true
-                    width:          parent.width*0.75
-                    height:         parent.height*0.75
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter:   parent.verticalCenter
-                    visible:        true
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        volumeSlider.visible = !volumeSlider.visible
-                    }
-                }
-            }
-
-            Slider {
-                id:                 volumeSlider
-                z:                  _flightVideoPipControl.z + 1
-                anchors.verticalCenter: audioBtn.verticalCenter
-                anchors.margins:    ScreenTools.defaultFontPixelHeight / 2
-                anchors.right:      audioBtn.left
-                Layout.fillWidth:   true
-                minimumValue:       0
-                stepSize:           0.05
-                maximumValue:       1
-                visible:            false
-                onValueChanged:     _videoReceiver.volume = value
-                Component.onCompleted: value = _videoReceiver.volume
-
             }
         }
 
