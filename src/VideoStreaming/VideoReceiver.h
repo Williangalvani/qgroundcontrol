@@ -50,7 +50,7 @@ public:
 
 #if defined(QGC_GST_STREAMING)
     virtual bool            running         () { return _running;   }
-    virtual bool            volume          () { return _running;   }
+    virtual float           volume          () { return _running;   }
     virtual bool            recording       () { return _recording; }
     virtual bool            streaming       () { return _streaming; }
     virtual bool            starting        () { return _starting;  }
