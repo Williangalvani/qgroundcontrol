@@ -11,6 +11,7 @@
 import QtQuick              2.3
 import QtQuick.Controls     1.2
 
+import QGroundControl               1.0
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
@@ -31,6 +32,8 @@ SetupPage {
             FactPanelController { id: controller; factPanel: cameraPage.viewPanel }
 
             QGCPalette { id: palette; colorGroupEnabled: true }
+
+            property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
 
             property Fact _mountRetractX:       controller.getParameterFact(-1, "MNT_RETRACT_X")
             property Fact _mountRetractY:       controller.getParameterFact(-1, "MNT_RETRACT_Y")
@@ -69,6 +72,8 @@ SetupPage {
             property bool _tiltEnabled:         false
             property bool _panEnabled:          false
             property bool _rollEnabled:         false
+
+            property bool _allVisible:          _activeVehicle.sub ? showAll.checked : true
 
             property bool _servoReverseIsBool:  controller.parameterExists(-1, "RC5_REVERSED")
 
@@ -465,6 +470,12 @@ SetupPage {
                 } // Item
             } // Component - gimbalSettings
 
+            QGCCheckBox {
+                id: showAll
+                text: "Show all settings (advanced)"
+                visible: _activeVehicle.sub
+            }
+
             Loader {
                 id:                 gimbalDirectionTiltLoader
                 sourceComponent:    gimbalDirectionSettings
@@ -486,6 +497,7 @@ SetupPage {
             Loader {
                 id:                 gimbalDirectionRollLoader
                 sourceComponent:    gimbalDirectionSettings
+                visible:            _allVisible
 
                 property string directionTitle:     qsTr("Roll")
                 property bool   directionEnabled:   _rollEnabled
@@ -504,6 +516,7 @@ SetupPage {
             Loader {
                 id:                 gimbalDirectionPanLoader
                 sourceComponent:    gimbalDirectionSettings
+                visible:            _allVisible
 
                 property string directionTitle:     qsTr("Pan")
                 property bool   directionEnabled:   _panEnabled
@@ -520,7 +533,8 @@ SetupPage {
             }
 
             Loader {
-                id: gimbalSettingsLoader
+                id:         gimbalSettingsLoader
+                visible:    _allVisible
             }
         } // Column
     } // Component
