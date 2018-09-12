@@ -11,6 +11,7 @@
 import QtQuick              2.3
 import QtQuick.Controls     1.2
 
+import QGroundControl               1.0
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
@@ -31,6 +32,8 @@ SetupPage {
             FactPanelController { id: controller; factPanel: cameraPage.viewPanel }
 
             QGCPalette { id: palette; colorGroupEnabled: true }
+
+            property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
 
             property Fact _mountRetractX:       controller.getParameterFact(-1, "MNT_RETRACT_X")
             property Fact _mountRetractY:       controller.getParameterFact(-1, "MNT_RETRACT_Y")
@@ -284,6 +287,7 @@ SetupPage {
                             anchors.baseline:   mountRcInCombo.baseline
                             text:               qsTr("Input channel:")
                             enabled:            directionEnabled
+                            visible:            !_activeVehicle.sub
                         }
 
                         FactComboBox {
@@ -295,6 +299,7 @@ SetupPage {
                             fact:               mountRcInFact
                             indexModel:         false
                             enabled:            directionEnabled
+                            visible:            !_activeVehicle.sub
                         }
 
                         QGCLabel {
@@ -386,6 +391,12 @@ SetupPage {
                             fact:               servoPWMMaxFact
                             enabled:            directionEnabled
                         }
+
+                        Component.onCompleted: {
+                            if (_activeVehicle.sub) {
+                                mountRcInFact.value = hardCodedChannel
+                            }
+                        }
                     } // Rectangle
                 } // Item
             } // Component - gimbalDirectionSettings
@@ -469,6 +480,7 @@ SetupPage {
                 id:                 gimbalDirectionTiltLoader
                 sourceComponent:    gimbalDirectionSettings
 
+                property int    hardCodedChannel:   8 // ArduSub/joystick.cpp cam_tilt
                 property string directionTitle:     qsTr("Tilt")
                 property bool   directionEnabled:   _tiltEnabled
                 property int    gimbalOutIndex:     0
@@ -487,6 +499,7 @@ SetupPage {
                 id:                 gimbalDirectionRollLoader
                 sourceComponent:    gimbalDirectionSettings
 
+                property int    hardCodedChannel:   0 // ArduSub/joystick.cpp cam_roll does not exist
                 property string directionTitle:     qsTr("Roll")
                 property bool   directionEnabled:   _rollEnabled
                 property int    gimbalOutIndex:     0
@@ -505,6 +518,7 @@ SetupPage {
                 id:                 gimbalDirectionPanLoader
                 sourceComponent:    gimbalDirectionSettings
 
+                property int    hardCodedChannel:   7 // ArduSub/joystick.cpp cam_pan
                 property string directionTitle:     qsTr("Pan")
                 property bool   directionEnabled:   _panEnabled
                 property int    gimbalOutIndex:     0
