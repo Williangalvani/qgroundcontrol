@@ -10,7 +10,9 @@
 
 import QtQuick              2.3
 import QtQuick.Controls     1.2
+import QtQuick.Controls.Styles  1.4
 
+import QGroundControl               1.0
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
@@ -31,6 +33,9 @@ SetupPage {
             FactPanelController { id: controller; factPanel: cameraPage.viewPanel }
 
             QGCPalette { id: palette; colorGroupEnabled: true }
+
+            property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
+            property bool _oldFW:               !(_activeVehicle.firmwareMajorVersion > 3 || _activeVehicle.firmwareMinorVersion > 5 || _activeVehicle.firmwarePatchVersion >= 2)
 
             property Fact _mountRetractX:       controller.getParameterFact(-1, "MNT_RETRACT_X")
             property Fact _mountRetractY:       controller.getParameterFact(-1, "MNT_RETRACT_Y")
@@ -89,6 +94,10 @@ SetupPage {
                     gimbalSettingsLoader.sourceComponent = gimbalSettings
                 }
                 calcGimbalOutValues()
+                slide.minimumValue = slide._fact.min
+                slide.maximumValue = slide._fact.max
+                slide.value = slide._fact.value
+                slide._loadComplete = true
             }
 
             function setGimbalSettingsServoInfo(loader, channel) {
@@ -166,6 +175,86 @@ SetupPage {
             Connections {
                 target:         _mountRCInTilt
                 onValueChanged: _mountDefaultMode.value = _mountDefaultModeRCTargetting
+            }
+
+            Rectangle {
+                id:                 rectangle
+                anchors.topMargin:  _margins / 2
+                anchors.left:       parent.left
+                width:              slide.x + slide.width + _margins
+                height:             slide.y + slide.height + _margins
+                color:              palette.windowShade
+                visible:            !_oldFW
+
+                QGCLabel {
+                    id:                 speed
+                    anchors.top:        parent.top
+                    anchors.topMargin:  _margins / 2
+                    anchors.left:       parent.left
+                    anchors.leftMargin: _margins
+                    text:               "Camera mount speed:"
+                    font.family:        ScreenTools.demiboldFontFamily
+
+                }
+
+                QGCSlider {
+                    property var        _fact: controller.getParameterFact(-1, "MNT_JSTICK_SPD")
+                    property var        _loadComplete: false
+                    anchors.top:        speed.bottom
+                    anchors.left:       parent.left
+                    anchors.leftMargin: _margins
+                    id:                 slide
+                    width:              gimbalDirectionTiltLoader.width - 2 * _margins
+
+                    stepSize: _fact.increment ? _fact.increment : 1
+
+                    // Override style to make handles smaller than default
+                    style: SliderStyle {
+                        handle: Rectangle {
+                            anchors.centerIn: parent
+                            color: qgcPal.button
+                            border.color: qgcPal.buttonText
+                            border.width:   1
+                            implicitWidth: _radius * 2
+                            implicitHeight: _radius * 2
+                            radius: _radius
+
+                            property real _radius: Math.round(ScreenTools.defaultFontPixelHeight * 0.35)
+                        }
+                    }
+
+                    onValueChanged: {
+                        if (_loadComplete) {
+                            _fact.value = value
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onWheel: {
+                            // do nothing
+                            wheel.accepted = true;
+                        }
+                        onPressed: {
+                            // propogate/accept
+                            mouse.accepted = false;
+                        }
+                        onReleased: {
+                            // propogate/accept
+                            mouse.accepted = false;
+                        }
+                    }
+                }
+
+                QGCLabel {
+                    visible:            slide.value <= 10
+                    anchors.top:        slide.bottom
+                    anchors.left:       parent.left
+                    anchors.leftMargin: _margins
+                    text:               "The camera may not move with this value"
+                    font.family:        ScreenTools.demiboldFontFamily
+                }
+
             }
 
             ListModel {
@@ -469,6 +558,7 @@ SetupPage {
                 id:                 gimbalDirectionTiltLoader
                 sourceComponent:    gimbalDirectionSettings
 
+                property int    hardCodedChanned:   8 // ArduSub/joystick.cpp cam_tilt
                 property string directionTitle:     qsTr("Tilt")
                 property bool   directionEnabled:   _tiltEnabled
                 property int    gimbalOutIndex:     0
@@ -487,6 +577,7 @@ SetupPage {
                 id:                 gimbalDirectionRollLoader
                 sourceComponent:    gimbalDirectionSettings
 
+                property int    hardCodedChannel:   0 // ArduSub/joystick.cpp cam_roll does not exist
                 property string directionTitle:     qsTr("Roll")
                 property bool   directionEnabled:   _rollEnabled
                 property int    gimbalOutIndex:     0
@@ -505,6 +596,7 @@ SetupPage {
                 id:                 gimbalDirectionPanLoader
                 sourceComponent:    gimbalDirectionSettings
 
+                property int    hardCodedChannel:   7 // ArduSub/joystick.cpp cam_pan
                 property string directionTitle:     qsTr("Pan")
                 property bool   directionEnabled:   _panEnabled
                 property int    gimbalOutIndex:     0
