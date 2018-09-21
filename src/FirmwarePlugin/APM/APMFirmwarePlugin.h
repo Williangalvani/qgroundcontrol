@@ -127,6 +127,8 @@ private:
     void _handleOutgoingParamSet(Vehicle* vehicle, LinkInterface* outgoingLink, mavlink_message_t* message);
     void _soloVideoHandshake(Vehicle* vehicle, bool originalSoloFirmware);
     bool _guidedModeTakeoff(Vehicle* vehicle, double altitudeRel);
+    QString _getLatestVersionFileUrl(Vehicle* vehicle);
+    QString _versionRegex();
 
     // Any instance data here must be global to all vehicles
     // Vehicle specific data should go into APMFirmwarePluginInstanceData
