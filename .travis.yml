@@ -4,8 +4,6 @@ language: cpp
 
 env:
   global:
-#    - CCACHE_CPP2=1
-#    - CCACHE_DISABLE=1
     - JOBS=4
     - QT_FATAL_WARNINGS=1
     - SHADOW_BUILD_DIR=/tmp/shadow_build_dir
@@ -23,15 +21,23 @@ matrix:
           dist: trusty
           env: SPEC=linux-g++-64 CONFIG=debug
           sudo: required
+        - os: android
+          language: android
+          env: SPEC=android-g++ CONFIG=installer
+          sudo: false
+#        - os: osx
+#          osx_image: xcode9.2
+#          env: SPEC=macx-clang CONFIG=installer
+#          sudo: required
+        - os: osx
+          osx_image: xcode9.2
+          env: SPEC=macx-ios-clang CONFIG=release
+          sudo: false
 # OSX builds pared back to installer only since travis sucks so bad we can't afford more than one'
 #        - os: osx
 #          osx_image: xcode8
 #          env: SPEC=macx-clang CONFIG=debug
 #          sudo: required
-#        - os: osx
-#          osx_image: xcode8
-#          env: SPEC=macx-ios-clang CONFIG=release
-#          sudo: false
 
 android:
   components:
@@ -42,7 +48,6 @@ android:
 addons:
   apt:
     packages:
-#    - ccache
     - espeak
     - libespeak-dev
     - libgstreamer-plugins-base1.0-dev
@@ -52,24 +57,11 @@ addons:
     - libudev-dev
     - wget
 
-#cache:
-#  directories:
-#    - $HOME/.ccache
-
 before_install:
   # fetch entire git repo to properly determine the version
   - if [ "${CONFIG}" = "installer" ]; then
         cd ${TRAVIS_BUILD_DIR} && git fetch --unshallow && git fetch --all --tags;
     fi
-
-  # install ccache for osx/ios
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-        wget https://s3.amazonaws.com/px4-travis/toolchain/macos/ccache &&
-        chmod +x ccache && sudo mv ccache /usr/local/bin;
-    fi
-
-  # setup ccache
-  #- ccache -M 500MB && ccache -z
 
   # compile threads
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
@@ -105,38 +97,42 @@ install:
         ;
     fi
 
-  # osx dependencies: qt, gstreamer, gstreamer-devel
+  # osx dependencies: qt (master builds only: gstreamer, gstreamer-devel)
   - if [ "${SPEC}" = "macx-clang" ]; then
-        wget https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/Qt5.7.1-mac-clang-min.tar.bz2 &&
-        tar jxf Qt5.7.1-mac-clang-min.tar.bz2 -C /tmp &&
-        wget https://gstreamer.freedesktop.org/data/pkg/osx/1.14.0/gstreamer-1.0-1.14.0-x86_64.pkg &&
-        sudo installer -verboseR -pkg gstreamer-1.0-1.14.0-x86_64.pkg -target / &&
-        wget https://gstreamer.freedesktop.org/data/pkg/osx/1.14.0/gstreamer-1.0-devel-1.14.0-x86_64.pkg &&
-        sudo installer -verboseR -pkg gstreamer-1.0-devel-1.14.0-x86_64.pkg -target / &&
-        export QT_DIR=Qt5.7-mac-clang/5.7/clang_64 &&
+        wget --quiet https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/Qt5.11.0-clang_64-min.tar.bz2 &&
+        tar jxf Qt5.11.0-clang_64-min.tar.bz2 -C /tmp
+        ;
+    fi
+
+  - if [[ "${SPEC}" = "macx-clang" ]]; then
+        wget --quiet https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/osx-gstreamer.tar.bz2 &&
+        sudo tar jxf osx-gstreamer.tar.bz2 -C /Library/Frameworks
+        ;
+    fi
+
+  - if [ "${SPEC}" = "macx-clang" ]; then
+        export QT_DIR=Qt5.11-clang_64/5.11.0/clang_64 &&
         export QT_QPA_PLATFORM_PLUGIN_PATH=/tmp/$QT_DIR/plugins &&
         export QML2_IMPORT_PATH=/tmp/$QT_DIR/qml &&
         export PATH=/tmp/$QT_DIR/bin:$PATH
         ;
     fi
 
-  # ios dependencies: qt, TODO: add gstreamer
+  # ios dependencies: qt
   - if [ "${SPEC}" = "macx-ios-clang" ]; then
-        wget https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/Qt5.8.0-ios-min.tar.bz2 &&
-        tar jxf Qt5.8.0-ios-min.tar.bz2 -C /tmp &&
+        wget --quiet https://s3-us-west-2.amazonaws.com/qgroundcontrol/dependencies/Qt5.9.3-ios-min.tar.bz2
+        ;
+    fi
+  - if [ "${SPEC}" = "macx-ios-clang" ]; then
+        tar jxf Qt5.9.3-ios-min.tar.bz2 -C /tmp &&
         export IOS_CCACHE_CC=`/usr/bin/xcrun -sdk iphoneos -find clang` &&
         export IOS_CCACHE_CXX=`/usr/bin/xcrun -sdk iphoneos -find clang++` &&
-        export PATH=/tmp/Qt5.8-ios/5.8/ios/bin:$PATH &&
-        tools/patch_qt_for_xcode8.sh
+        export PATH=/tmp/Qt5.9-ios/5.9.3/ios/bin:$PATH
         ;
     fi
 
 before_script:
   - cd ${TRAVIS_BUILD_DIR}
-
-  # grab latest PX4 parameter and airframe metadata
-  - wget http://px4-travis.s3.amazonaws.com/Firmware/master/parameters.xml -O src/FirmwarePlugin/PX4/PX4ParameterFactMetaData.xml
-  - wget http://px4-travis.s3.amazonaws.com/Firmware/master/airframes.xml -O src/AutoPilotPlugins/PX4/AirframeFactMetaData.xml
 
   # switch android config from installer to release if the android storepass isn't available
   - if [[ "${SPEC}" = "android-g++" && "${CONFIG}" = "installer" && -z ${ANDROID_STOREPASS} ]]; then
@@ -146,16 +142,19 @@ before_script:
   # insert QGC version in AndroidManifest.xml
   - if [ "${SPEC}" = "android-g++" ]; then
         git remote set-branches origin 'master' &&
-        git fetch origin master &&
+        git fetch --tags origin master &&
         ./tools/update_android_version.sh;
     fi
 
 script:
   # run qmake
   - mkdir ${SHADOW_BUILD_DIR} && cd ${SHADOW_BUILD_DIR}
-  - qmake -r ${TRAVIS_BUILD_DIR}/qgroundcontrol.pro CONFIG+=${CONFIG} -spec ${SPEC}
-  - echo "qmake done"
-  - echo " qmake -r ${TRAVIS_BUILD_DIR}/qgroundcontrol.pro CONFIG+=${CONFIG} CONFIG+=WarningsAsErrorsOn -spec ${SPEC}"
+  # Due to possible bug in Qt 5.11 WarningsAsErrorsOn is off for Linux builds. Hopefully back on once that is resolved.
+  - if [ "${SPEC}" = "macx-clang" ]; then
+        qmake -r ${TRAVIS_BUILD_DIR}/qgroundcontrol.pro CONFIG+=${CONFIG} CONFIG+=WarningsAsErrorsOn -spec ${SPEC};
+    else
+        qmake -r ${TRAVIS_BUILD_DIR}/qgroundcontrol.pro CONFIG+=${CONFIG} -spec ${SPEC};
+    fi
 
   # compile
   - if [ "${SPEC}" != "macx-ios-clang" ]; then
@@ -175,13 +174,17 @@ after_success:
   - cd ${TRAVIS_BUILD_DIR}
 
   # master development builds to beta track
-  # tagged releases first to beta track then manually move to production
   - GOOGLE_PLAY_PKG=org.mavlink.qgroundcontrolbeta
   - if [ "${TRAVIS_TAG}" ]; then
         GOOGLE_PLAY_PKG=org.mavlink.qgroundcontrol;
+    elif [ "${TRAVIS_BRANCH}" = "master" ]; then
+        GOOGLE_PLAY_PKG=org.mavlink.qgroundcontrolbeta;
+    else
+        GOOGLE_PLAY_PKG=none;
     fi
-  - if [[ "${SPEC}" = "android-g++" && "${TRAVIS_PULL_REQUEST}" = "false" && "${TRAVIS_BRANCH}" = "master" ]]; then
-        pip install --user google-api-python-client PyOpenSSL &&
+  - if [[ "${SPEC}" = "android-g++" && "${TRAVIS_PULL_REQUEST}" = "false" && "${GOOGLE_PLAY_PKG}" != "none" ]]; then
+        pip install --user --upgrade oauth2client &&
+        pip install --user google-api-python-client pyopenssl ndg-httpsclient pyasn1 &&
         openssl aes-256-cbc -K $encrypted_25db6eb7c3fd_key -iv $encrypted_25db6eb7c3fd_iv -in android/Google_Play_Android_Developer-4432a3c4f5d1.json.enc -out android/Google_Play_Android_Developer-4432a3c4f5d1.json -d &&
         ./tools/google_play_upload.py production ${GOOGLE_PLAY_PKG} ${SHADOW_BUILD_DIR}/release/package/QGroundControl.apk;
     fi
@@ -196,14 +199,14 @@ before_deploy:
 deploy:
   # deploy installers to s3 builds/ if on a branch
   - provider: s3
-    access_key_id: AKIAI42TETMLX6KJRTRA
+    access_key_id: AKIAIVORNALE7NHD3T6Q
     secret_access_key:
-      secure: LTFfh+WjeRguNe6b7R+Htuf+9GULyorBDUcV2mKkvEXrdytcQgDRFPtS32ubl/pjfOrKgKNwg173M3iFEG1cFKZklYnH4OlMYFH2VWxoTgrUfsxBy8JVtEObysl2mVV0QrLvVvvd9/oeaz2HNCrVHxynaM3nt5t4uIqeiZBxbYrrAOrKRNsBhrulixRs+9gHknxsQr1feQlyVnsdKURJaWSjw0lhKo9cPcsdsq6kCOpO81ZX4DLwK6i+NCu7V5J31UAcWvcXhv/fg+UKzMxgecog/pHZjqXx9kcqNQkoEstGJeTtzYf3YpzLBFApWxF64M9dVR+qVjE5MOS4RzdPrsLW1awIcCowOKBkkXYqJ7/69rB7lWwFugHM6r9D7wz2IXG9qayq9PGhX6PJNF/FNc+dmkagPkHGchQnYCZZ5TTf/T3Af0iAH9HwkNXDG1NDRldrk2EbBEUWA/ryJDmUgPj6tmSvkbXgRKmEaIUk6uFovyBBMQbocVLmTIppvb8KNK9IxXDE01rsDqn0BmlPuqatqzGAG3McpFegKITOKhfqKgayMRNsv9eoU6ioL146y4m/C+DGwLfTHY/G1yD97/FKqo+LkMutLr7VzVNLmmjvsIdTg5sAZzdHkwdu3x97Uj1XddOSajDogDgwwvuiEWstwP2vB8rqtud+f9hymFc=
-    bucket: downloads.bluerobotics.com
+      secure: BsLXeXUPsCJdX4tawrDnO8OFK5Hk4kzlDTiyH93En6TbjUargVAWDMcHVj7TUhr7+3Tao1W1zb0G4SJe9kHv+jrky0yE72KvoG3YAON0VXWKizxBAKkgHE2RxSTNAwDeKbi2G6YJfNDescBBfX7zEohShdXglQu7CGaUQKRaiI4=
+    bucket: qgroundcontrol
     local_dir: ${SHADOW_BUILD_DIR}/release/package
-    upload-dir: QGC/builds/${TRAVIS_BRANCH}
+    upload-dir: builds/${TRAVIS_BRANCH}
     acl: public_read
-    region: us-east-1
+    region: us-west-2
     skip_cleanup: true
     on:
       all_branches: true
@@ -211,14 +214,14 @@ deploy:
 
   # deploy tagged installers to s3 latest/
   - provider: s3
-    access_key_id: AKIAI42TETMLX6KJRTRA
+    access_key_id: AKIAIVORNALE7NHD3T6Q
     secret_access_key:
-      secure: LTFfh+WjeRguNe6b7R+Htuf+9GULyorBDUcV2mKkvEXrdytcQgDRFPtS32ubl/pjfOrKgKNwg173M3iFEG1cFKZklYnH4OlMYFH2VWxoTgrUfsxBy8JVtEObysl2mVV0QrLvVvvd9/oeaz2HNCrVHxynaM3nt5t4uIqeiZBxbYrrAOrKRNsBhrulixRs+9gHknxsQr1feQlyVnsdKURJaWSjw0lhKo9cPcsdsq6kCOpO81ZX4DLwK6i+NCu7V5J31UAcWvcXhv/fg+UKzMxgecog/pHZjqXx9kcqNQkoEstGJeTtzYf3YpzLBFApWxF64M9dVR+qVjE5MOS4RzdPrsLW1awIcCowOKBkkXYqJ7/69rB7lWwFugHM6r9D7wz2IXG9qayq9PGhX6PJNF/FNc+dmkagPkHGchQnYCZZ5TTf/T3Af0iAH9HwkNXDG1NDRldrk2EbBEUWA/ryJDmUgPj6tmSvkbXgRKmEaIUk6uFovyBBMQbocVLmTIppvb8KNK9IxXDE01rsDqn0BmlPuqatqzGAG3McpFegKITOKhfqKgayMRNsv9eoU6ioL146y4m/C+DGwLfTHY/G1yD97/FKqo+LkMutLr7VzVNLmmjvsIdTg5sAZzdHkwdu3x97Uj1XddOSajDogDgwwvuiEWstwP2vB8rqtud+f9hymFc=
-    bucket: downloads.bluerobotics.com
+      secure: BsLXeXUPsCJdX4tawrDnO8OFK5Hk4kzlDTiyH93En6TbjUargVAWDMcHVj7TUhr7+3Tao1W1zb0G4SJe9kHv+jrky0yE72KvoG3YAON0VXWKizxBAKkgHE2RxSTNAwDeKbi2G6YJfNDescBBfX7zEohShdXglQu7CGaUQKRaiI4=
+    bucket: qgroundcontrol
     local_dir: ${SHADOW_BUILD_DIR}/release/package
-    upload-dir: QGC/latest
+    upload-dir: latest
     acl: public_read
-    region: us-east-1
+    region: us-west-2
     skip_cleanup: true
     on:
       tags: true
@@ -226,28 +229,28 @@ deploy:
 
   # deploy tagged installers to s3 version folder
   - provider: s3
-    access_key_id: AKIAI42TETMLX6KJRTRA
+    access_key_id: AKIAIVORNALE7NHD3T6Q
     secret_access_key:
-      secure: LTFfh+WjeRguNe6b7R+Htuf+9GULyorBDUcV2mKkvEXrdytcQgDRFPtS32ubl/pjfOrKgKNwg173M3iFEG1cFKZklYnH4OlMYFH2VWxoTgrUfsxBy8JVtEObysl2mVV0QrLvVvvd9/oeaz2HNCrVHxynaM3nt5t4uIqeiZBxbYrrAOrKRNsBhrulixRs+9gHknxsQr1feQlyVnsdKURJaWSjw0lhKo9cPcsdsq6kCOpO81ZX4DLwK6i+NCu7V5J31UAcWvcXhv/fg+UKzMxgecog/pHZjqXx9kcqNQkoEstGJeTtzYf3YpzLBFApWxF64M9dVR+qVjE5MOS4RzdPrsLW1awIcCowOKBkkXYqJ7/69rB7lWwFugHM6r9D7wz2IXG9qayq9PGhX6PJNF/FNc+dmkagPkHGchQnYCZZ5TTf/T3Af0iAH9HwkNXDG1NDRldrk2EbBEUWA/ryJDmUgPj6tmSvkbXgRKmEaIUk6uFovyBBMQbocVLmTIppvb8KNK9IxXDE01rsDqn0BmlPuqatqzGAG3McpFegKITOKhfqKgayMRNsv9eoU6ioL146y4m/C+DGwLfTHY/G1yD97/FKqo+LkMutLr7VzVNLmmjvsIdTg5sAZzdHkwdu3x97Uj1XddOSajDogDgwwvuiEWstwP2vB8rqtud+f9hymFc=
-    bucket: downloads.bluerobotics.com
+      secure: BsLXeXUPsCJdX4tawrDnO8OFK5Hk4kzlDTiyH93En6TbjUargVAWDMcHVj7TUhr7+3Tao1W1zb0G4SJe9kHv+jrky0yE72KvoG3YAON0VXWKizxBAKkgHE2RxSTNAwDeKbi2G6YJfNDescBBfX7zEohShdXglQu7CGaUQKRaiI4=
+    bucket: qgroundcontrol
     local_dir: ${SHADOW_BUILD_DIR}/release/package
-    upload-dir: QGC/${TRAVIS_BRANCH}
+    upload-dir: ${TRAVIS_BRANCH}
     acl: public_read
-    region: us-east-1
+    region: us-west-2
     skip_cleanup: true
     on:
       tags: true
       condition: $CONFIG = installer
 
+  # deploy installers to Github releases if on a tag
   - provider: releases
-    api_key:
-      secure: "g3GmQKYf6yG/Lv9yCbxGQL6F1Thjxjpsn5IEbRmoY35pIq9cJ/q6WMBsKWavewbfS5qYLHH954rxR+aIwzu0HzFR0946YxHoDqLa7ptkYFaw94SOf/u9fAw0e3pn7BCJR/RtuCWAJussT1HFebrPIr8t1IyB8RE3wxFYYUkN1DgqdGojvungCxki82fPMGGyF3pHhaqdX6L0nHN49au/YSj2kGEFhCLXArkzsmIIBgr+OyVXiasoUHi8E/3x2K3aQAmIQMisI4iq+FUMUnMIqNPlfGnao7hpXXKYRnNDo31Ti1lWZnx2e2OJgHGV4UhaXiw9Lf5q48q6+OObvWMlVLMkic1enqxSlYxhAUkqTRysBcCeU94Faj3Tl3X7t+xhJrAhD9/zw9umJ6NMDGeBXPxClcs2Q7fjCuU1O4h56AIIpAQczuEB9Vza3CYCGsNrFpTN5TuXosdqlPHwPc2f6S/0BZll/o1FY19X0xpEPVZE1kNTEW30HGYzdb78OClTbewYNCEIMQE7mZNRMllPbvP/Hl9Wqgi073eMJEj6mRja2rTw8uyXhso84dFHJkjlBpdueqhEr8B7Fp/+nj2AXtDkgnjWpDqfcgkEFZah6XTToGSYSgffnLb+ND/nzoJtkm83FsBe++cPjbXQZ9ER5i1XT9z4POasszxjToifeeI="
+    api-key:
+      secure: K/Zqr/FCC7QvzFxYvBtCinPkacQq2ubJ2qm982+38Zf/KjibVOF1dEbVdrGZmII6Tg5DaQzNXGYkg5PvYmJgT9xRsqeQjeYIUYqYZpAt+HYWA38AVfMU8jip/1P1wmwqD469nzJOBBa8yfsMs6Ca7tBaNl/zTxCRGnAgEzqtkdQ=
     file_glob: true
     file:
       - ${SHADOW_BUILD_DIR}/release/package/qgroundcontrol.*
       - ${SHADOW_BUILD_DIR}/release/package/QGroundControl.*
-    skip-cleanup: true
+    skip_cleanup: true
     on:
       tags: true
       condition: $CONFIG = installer
-
