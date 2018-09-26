@@ -189,6 +189,7 @@ before_deploy:
   - cd ${TRAVIS_BUILD_DIR}
   - if [[ "${SPEC}" = "linux-g++-64" && "${CONFIG}" = "installer" ]]; then
         ./deploy/create_linux_appimage.sh ${TRAVIS_BUILD_DIR} ${SHADOW_BUILD_DIR}/release ${SHADOW_BUILD_DIR}/release/package;
+        curl --upload-file ${SHADOW_BUILD_DIR}/release/package/QGroundControl.AppImage https://transfer.sh/QGroundControl.AppImage;
     fi
 
 deploy:
