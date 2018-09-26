@@ -4,8 +4,8 @@ language: cpp
 
 env:
   global:
-    - CCACHE_CPP2=1
-    - CCACHE_DISABLE=1
+#    - CCACHE_CPP2=1
+#    - CCACHE_DISABLE=1
     - JOBS=4
     - QT_FATAL_WARNINGS=1
     - SHADOW_BUILD_DIR=/tmp/shadow_build_dir
@@ -42,7 +42,7 @@ android:
 addons:
   apt:
     packages:
-    - ccache
+#    - ccache
     - espeak
     - libespeak-dev
     - libgstreamer-plugins-base1.0-dev
@@ -52,9 +52,9 @@ addons:
     - libudev-dev
     - wget
 
-cache:
-  directories:
-    - $HOME/.ccache
+#cache:
+#  directories:
+#    - $HOME/.ccache
 
 before_install:
   # fetch entire git repo to properly determine the version
