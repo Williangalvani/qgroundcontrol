@@ -154,6 +154,7 @@ script:
   # run qmake
   - mkdir ${SHADOW_BUILD_DIR} && cd ${SHADOW_BUILD_DIR}
   - qmake -r ${TRAVIS_BUILD_DIR}/qgroundcontrol.pro CONFIG+=${CONFIG} CONFIG+=WarningsAsErrorsOn -spec ${SPEC}
+  - echo "qmake done"
 
   # compile
   - if [ "${SPEC}" != "macx-ios-clang" ]; then
