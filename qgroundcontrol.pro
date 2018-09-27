@@ -202,7 +202,13 @@ LinuxBuild {
 
 CONFIG += qt \
     thread \
-    c++11 \
+    c++11
+
+DebugBuild {
+    CONFIG -= qtquickcompiler
+} else {
+    CONFIG += qtquickcompiler
+}
 
 contains(DEFINES, ENABLE_VERBOSE_OUTPUT) {
     message("Enable verbose compiler output (manual override from command line)")
