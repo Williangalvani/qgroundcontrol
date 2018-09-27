@@ -7,14 +7,16 @@
 # License terms set in COPYING.md
 # -------------------------------------------------
 
+QMAKE_PROJECT_DEPTH = 0 # undocumented qmake flag to force absolute paths in make files
+
 exists($${OUT_PWD}/qgroundcontrol.pro) {
     error("You must use shadow build (e.g. mkdir build; cd build; qmake ../qgroundcontrol.pro).")
 }
 
 message(Qt version $$[QT_VERSION])
 
-!equals(QT_MAJOR_VERSION, 5) | !greaterThan(QT_MINOR_VERSION, 6) {
-    error("Unsupported Qt version, 5.7+ is required")
+!equals(QT_MAJOR_VERSION, 5) | !greaterThan(QT_MINOR_VERSION, 8) {
+    error("Unsupported Qt version, 5.9+ is required")
 }
 
 include(QGCCommon.pri)
