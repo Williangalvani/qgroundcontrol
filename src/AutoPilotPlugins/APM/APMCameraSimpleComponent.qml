@@ -121,13 +121,13 @@ SetupPage {
                 _rollEnabled = false
                 for (var channel=_firstGimbalOutChannel; channel<=_lastGimbalOutChannel; channel++) {
                     var functionFact = controller.getParameterFact(-1, "r.SERVO" + channel + "_FUNCTION")
-                    if (functionFact.value == _rcFunctionMountTilt) {
+                    if (functionFact.value === _rcFunctionMountTilt) {
                         _tiltEnabled = true
                         setGimbalSettingsServoInfo(gimbalDirectionTiltLoader, channel)
-                    } else if (functionFact.value == _rcFunctionMountPan) {
+                    } else if (functionFact.value === _rcFunctionMountPan) {
                         _panEnabled = true
                         setGimbalSettingsServoInfo(gimbalDirectionPanLoader, channel)
-                    } else if (functionFact.value == _rcFunctionMountRoll) {
+                    } else if (functionFact.value === _rcFunctionMountRoll) {
                         _rollEnabled = true
                         setGimbalSettingsServoInfo(gimbalDirectionRollLoader, channel)
                     }
@@ -138,13 +138,13 @@ SetupPage {
                 // First clear any previous settings for this function
                 for (var index=_firstGimbalOutChannel; index<=_lastGimbalOutChannel; index++) {
                     var functionFact = controller.getParameterFact(-1, "r.SERVO" + index + "_FUNCTION")
-                    if (functionFact.value != _rcFunctionDisabled && functionFact.value == rcFunction) {
+                    if (functionFact.value !== _rcFunctionDisabled && functionFact.value === rcFunction) {
                         functionFact.value = _rcFunctionDisabled
                     }
                 }
 
                 // Now set the function into the new channel
-                if (channel != 0) {
+                if (channel !== 0) {
                     var functionFact = controller.getParameterFact(-1, "r.SERVO" + channel + "_FUNCTION")
                     functionFact.value = rcFunction
                 }
