@@ -181,12 +181,12 @@ SetupPage {
 
             ListModel {
                 id: gimbalOutModel
-                ListElement { text: qsTr("Disabled"); value: 0 }
-                ListElement { text: qsTr("Channel 5"); value: 5 }
-                ListElement { text: qsTr("Channel 6"); value: 6 }
-                ListElement { text: qsTr("Channel 7"); value: 7 }
-                ListElement { text: qsTr("Channel 8"); value: 8 }
-                ListElement { text: qsTr("Channel 9"); value: 9 }
+                ListElement { text: qsTr("Disabled");   value: 0 }
+                ListElement { text: qsTr("Channel 5");  value: 5 }
+                ListElement { text: qsTr("Channel 6");  value: 6 }
+                ListElement { text: qsTr("Channel 7");  value: 7 }
+                ListElement { text: qsTr("Channel 8");  value: 8 }
+                ListElement { text: qsTr("Channel 9");  value: 9 }
                 ListElement { text: qsTr("Channel 10"); value: 10 }
                 ListElement { text: qsTr("Channel 11"); value: 11 }
                 ListElement { text: qsTr("Channel 12"); value: 12 }
@@ -195,35 +195,35 @@ SetupPage {
             }
 
             QGCCheckBox {
-                id: _allVisible
-                text: "Show all settings (advanced)"
+                id:     _allVisible
+                text:   "Show all settings (advanced)"
             }
 
             QGCLabel {
-                visible: !_oldFW
-                text: "Camera mount tilt speed:"
+                visible:     !_oldFW
+                text:        "Camera mount tilt speed:"
                 font.family: ScreenTools.demiboldFontFamily
             }
 
             QGCSlider {
-                visible: !_oldFW
-                property var _fact: controller.getParameterFact(-1, "MNT_JSTICK_SPD")
-                property var _loadComplete: false
-                id: slide
-                width: gimbalDirectionTiltLoader.width
+                visible:    !_oldFW
+                id:         slide
+                width:      gimbalDirectionTiltLoader.width
+                stepSize:   _fact.increment ? _fact.increment : 1
 
-                stepSize: _fact.increment ? _fact.increment : 1
+                property var  _fact:            controller.getParameterFact(-1, "MNT_JSTICK_SPD")
+                property bool _loadComplete:    false
 
                 // Override style to make handles smaller than default
                 style: SliderStyle {
                     handle: Rectangle {
-                        anchors.centerIn: parent
-                        color: qgcPal.button
-                        border.color: qgcPal.buttonText
-                        border.width:   1
-                        implicitWidth: _radius * 2
-                        implicitHeight: _radius * 2
-                        radius: _radius
+                        anchors.centerIn:   parent
+                        color:              qgcPal.button
+                        border.color:       qgcPal.buttonText
+                        border.width:       1
+                        implicitWidth:      _radius * 2
+                        implicitHeight:     _radius * 2
+                        radius:             _radius
 
                         property real _radius: Math.round(ScreenTools.defaultFontPixelHeight * 0.35)
                     }
@@ -293,11 +293,11 @@ SetupPage {
 
                             // Section Content - 3 Rows
                             Column {
-                                id: innerColumn
-                                spacing: _margins
-                                anchors.margins: _margins
-                                anchors.top: rectangle.top
-                                anchors.left: rectangle.left
+                                id:                 innerColumn
+                                spacing:            _margins
+                                anchors.margins:    _margins
+                                anchors.top:        rectangle.top
+                                anchors.left:       rectangle.left
 
                                 // Input/output channel setup and CheckBoxes
                                 Row {
@@ -400,14 +400,14 @@ SetupPage {
                                     property var _labelBaseline: mountAngMinField.baseline
 
                                     QGCLabel {
-                                        id: angleLimitLabel
-                                        text:             qsTr("Gimbal angle limits:")
-                                        anchors.baseline: angleLimitRow._labelBaseline
+                                        id:                 angleLimitLabel
+                                        text:               qsTr("Gimbal angle limits:")
+                                        anchors.baseline:   angleLimitRow._labelBaseline
                                     }
 
                                     QGCLabel {
-                                        text:             qsTr("min")
-                                        anchors.baseline: angleLimitRow._labelBaseline
+                                        text:               qsTr("min")
+                                        anchors.baseline:   angleLimitRow._labelBaseline
                                     }
 
                                     FactTextField {
@@ -416,8 +416,8 @@ SetupPage {
                                     }
 
                                     QGCLabel {
-                                        text:             qsTr("max")
-                                        anchors.baseline: angleLimitRow._labelBaseline
+                                        text:              qsTr("max")
+                                        anchors.baseline:  angleLimitRow._labelBaseline
                                     }
 
                                     FactTextField {
@@ -527,7 +527,7 @@ SetupPage {
             Loader {
                 id:                 gimbalDirectionRollLoader
                 sourceComponent:    gimbalDirectionSettings
-                visible: _allVisible.checked
+                visible:            _allVisible.checked
 
                 property int    hardCodedChanned:   0 // ArduSub/joystick.cpp cam_roll does not exist
                 property string directionTitle:     qsTr("Roll")
@@ -547,7 +547,7 @@ SetupPage {
             Loader {
                 id:                 gimbalDirectionPanLoader
                 sourceComponent:    gimbalDirectionSettings
-                visible: _allVisible.checked
+                visible:            _allVisible.checked
 
                 property int    hardCodedChanned:   7 // ArduSub/joystick.cpp cam_pan
                 property string directionTitle:     qsTr("Pan")
@@ -565,8 +565,8 @@ SetupPage {
             }
 
             Loader {
-                id: gimbalSettingsLoader
-                visible: _allVisible.checked
+                id:         gimbalSettingsLoader
+                visible:    _allVisible.checked
             }
 
         } // Column
