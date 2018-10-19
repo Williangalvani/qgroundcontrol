@@ -72,6 +72,7 @@ SetupPage {
             property Fact _rc13Function:        controller.getParameterFact(-1, "r.SERVO13_FUNCTION")
             property Fact _rc14Function:        controller.getParameterFact(-1, "r.SERVO14_FUNCTION")
 
+            // These enable/disable the options for setting up each axis
             property bool _tiltEnabled:         false
             property bool _panEnabled:          false
             property bool _rollEnabled:         false
