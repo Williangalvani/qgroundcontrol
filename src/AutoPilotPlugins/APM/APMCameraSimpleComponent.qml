@@ -95,9 +95,6 @@ SetupPage {
                     gimbalSettingsLoader.sourceComponent = gimbalSettings
                 }
                 calcGimbalOutValues()
-
-//                slide.minimumValue = slide._fact.min
-//                slide.maximumValue = slide._fact.max
                 slide.minimumValue = 10
                 slide.maximumValue = 127
                 slide.value = slide._fact.value
@@ -325,25 +322,6 @@ SetupPage {
                                             }
                                         }
 
-                                        /* Commented code is easier to maintain than deleted code
-                                        Row {
-                                            spacing: _margins
-                                            enabled: directionEnabled
-
-                                            QGCLabel {
-                                                text:             qsTr("Input channel:")
-                                                anchors.baseline: inputChan.baseline
-                                                width:            gimbalOutLabel.width
-                                                enabled:          directionEnabled
-                                            }
-
-                                            FactComboBox {
-                                                id:         inputChan
-                                                width:      servoPWMMinField.width
-                                                fact:       mountRcInFact
-                                                indexModel: false
-                                            }
-                                        }*/
                                         Component.onCompleted: {
                                             mountRcInFact.value = hardCodedChanned
                                         }
