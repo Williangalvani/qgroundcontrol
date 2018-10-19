@@ -193,7 +193,10 @@ SetupPage {
                 ListElement { text: qsTr("Channel 14"); value: 14 }
             }
 
-            property bool _allVisible: QGroundControl.settingsManager.appSettings.showAdvancedSettings.value
+            QGCCheckBox {
+                id: _allVisible
+                text: "Show all settings (advanced)"
+            }
 
             QGCLabel {
                 visible: !_oldFW
@@ -347,7 +350,7 @@ SetupPage {
                                             fact:            mountStabFact
                                             checkedValue:    1
                                             uncheckedValue:  0
-                                            visible:         _allVisible
+                                            visible:         _allVisible.checked
                                         }
                                     } // Column - CheckBoxes
                                 } // Row input/output setup and CheckBoxes
@@ -391,7 +394,7 @@ SetupPage {
                                     id:      angleLimitRow
                                     spacing: _margins
                                     enabled: directionEnabled
-                                    visible: _allVisible
+                                    visible: _allVisible.checked
 
                                     property var _labelBaseline: mountAngMinField.baseline
 
@@ -523,7 +526,7 @@ SetupPage {
             Loader {
                 id:                 gimbalDirectionRollLoader
                 sourceComponent:    gimbalDirectionSettings
-                visible: _allVisible
+                visible: _allVisible.checked
 
                 property int    hardCodedChanned:   0 // ArduSub/joystick.cpp cam_roll does not exist
                 property string directionTitle:     qsTr("Roll")
@@ -543,7 +546,7 @@ SetupPage {
             Loader {
                 id:                 gimbalDirectionPanLoader
                 sourceComponent:    gimbalDirectionSettings
-                visible: _allVisible
+                visible: _allVisible.checked
 
                 property int    hardCodedChanned:   7 // ArduSub/joystick.cpp cam_pan
                 property string directionTitle:     qsTr("Pan")
@@ -562,7 +565,7 @@ SetupPage {
 
             Loader {
                 id: gimbalSettingsLoader
-                visible: _allVisible
+                visible: _allVisible.checked
             }
 
         } // Column
