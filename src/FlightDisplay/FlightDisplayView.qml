@@ -423,7 +423,7 @@ QGCView {
             anchors.top:            parent.top
             spacing:                ScreenTools.defaultFontPixelWidth
             z:                      _panel.z + 4
-            visible:                QGroundControl.multiVehicleManager.vehicles.count > 1
+            visible:                QGroundControl.multiVehicleManager.controllableVehicles.count > 1
 
             ExclusiveGroup { id: multiVehicleSelectorGroup }
 
