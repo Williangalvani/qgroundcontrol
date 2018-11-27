@@ -399,3 +399,15 @@ bool MultiVehicleManager::linkInUse(LinkInterface* link, Vehicle* skipVehicle)
 
     return false;
 }
+
+QmlObjectListModel* MultiVehicleManager::controllableVehicles(void) {
+    _controllableVehicles.clear();
+    for (int i = 0; i < _vehicles.count(); i++)
+    {
+        Vehicle* vehicle = qobject_cast<Vehicle*>(_controllableVehicles[i]);
+        if (vehicle->vehicleType() != MAV_TYPE_GCS) {
+            _vehicles.append(vehicle);
+        }
+    }
+    return &_controllableVehicles;
+    }
