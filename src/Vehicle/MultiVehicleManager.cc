@@ -142,7 +142,9 @@ void MultiVehicleManager::_vehicleHeartbeatInfo(LinkInterface* link, int vehicle
     if (_vehicles.count() > 1) {
         qgcApp()->showMessage(tr("Connected to Vehicle %1").arg(vehicleId));
     } else {
-        setActiveVehicle(vehicle);
+        if (vehicleType != MAV_TYPE_GCS) {
+            setActiveVehicle(vehicle);
+        }
     }
 
 #if defined (__ios__) || defined(__android__)
@@ -259,7 +261,7 @@ void MultiVehicleManager::setActiveVehicle(Vehicle* vehicle)
 {
     qCDebug(MultiVehicleManagerLog) << "setActiveVehicle" << vehicle;
 
-    if (vehicle != _activeVehicle) {
+    if (vehicle != _activeVehicle && vehicle->vehicleType() != MAV_TYPE_GCS) {
         if (_activeVehicle) {
             _activeVehicle->setActive(false);
 
