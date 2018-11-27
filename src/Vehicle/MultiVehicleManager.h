@@ -42,6 +42,7 @@ public:
     Q_PROPERTY(bool                 parameterReadyVehicleAvailable  READ parameterReadyVehicleAvailable                                 NOTIFY parameterReadyVehicleAvailableChanged)
     Q_PROPERTY(Vehicle*             activeVehicle                   READ activeVehicle                  WRITE setActiveVehicle          NOTIFY activeVehicleChanged)
     Q_PROPERTY(QmlObjectListModel*  vehicles                        READ vehicles                                                       CONSTANT)
+    Q_PROPERTY(QmlObjectListModel*  controllableVehicles            READ controllableVehicles                                           CONSTANT)
     Q_PROPERTY(bool                 gcsHeartBeatEnabled             READ gcsHeartbeatEnabled            WRITE setGcsHeartbeatEnabled    NOTIFY gcsHeartBeatEnabledChanged)
 
     /// A disconnected vehicle used for offline editing. It will match the vehicle type specified in Settings.
@@ -63,6 +64,7 @@ public:
     void setActiveVehicle(Vehicle* vehicle);
 
     QmlObjectListModel* vehicles(void) { return &_vehicles; }
+    QmlObjectListModel* controllableVehicles(void);
 
     bool gcsHeartbeatEnabled(void) const { return _gcsHeartbeatEnabled; }
     void setGcsHeartbeatEnabled(bool gcsHeartBeatEnabled);
@@ -111,6 +113,7 @@ private:
     QList<int>  _ignoreVehicleIds;          ///< List of vehicle id for which we ignore further communication
 
     QmlObjectListModel  _vehicles;
+    QmlObjectListModel  _controllableVehicles;
 
     FirmwarePluginManager*      _firmwarePluginManager;
     JoystickManager*            _joystickManager;
