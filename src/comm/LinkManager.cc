@@ -54,6 +54,7 @@ LinkManager::LinkManager(QGCApplication* app, QGCToolbox* toolbox)
 #ifndef __mobile__
 #ifndef NO_SERIAL_LINK
     , _nmeaPort(NULL)
+    , _nmeaSocket(nullptr)
 #endif
 #endif
 {
@@ -484,6 +485,24 @@ void LinkManager::_updateAutoConnectLinks(void)
         createConnectedLink(config);
         emit linkConfigurationsChanged();
     }
+#ifndef __mobile__
+    if (_autoConnectSettings->autoConnectNmeaPort()->cookedValueString() == "UDP Port")
+    {
+        if (!_nmeaSocket) {
+            qCDebug(LinkManagerLog) << "Creating UDP socket for NMEA stream";
+            _nmeaSocket = new UdpIODevice(this);
+        }
+        if (_nmeaSocket->localPort() != _autoConnectSettings->nmeaUdpPort()->cookedValue().toUInt()) {
+            qCDebug(LinkManagerLog) << "Changing port for UDP NMEA stream";
+            _nmeaSocket->close();
+            _nmeaSocket->bind(QHostAddress::AnyIPv4, _autoConnectSettings->nmeaUdpPort()->cookedValue().toUInt());
+            _toolbox->qgcPositionManager()->setNmeaSourceDevice(_nmeaSocket);
+        }
+    }
+    else if (_nmeaSocket) {
+        _nmeaSocket->close();
+    }
+#endif
 
 #ifndef NO_SERIAL_LINK
     QStringList currentPorts;
