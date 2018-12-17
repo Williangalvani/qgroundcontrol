@@ -79,5 +79,11 @@
     "longDescription":  "If this option is enabled GroundControl will automatically connect to a Taisync Ground Module which is connected via USB.",
     "type":             "bool",
     "defaultValue":     false
+},
+{
+    "name":             "nmeaUdpPort",
+    "shortDescription": "Udp port to receive NMEA streams",
+    "type":             "uint32",
+    "defaultValue":     14401
 }
 ]

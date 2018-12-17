@@ -32,5 +32,6 @@ public:
     DEFINE_SETTINGFACT(udpTargetHostIP)
     DEFINE_SETTINGFACT(udpTargetHostPort)
     DEFINE_SETTINGFACT(autoconnectTaisyncUSB)
+    DEFINE_SETTINGFACT(nmeaUdpPort)
 
 };
