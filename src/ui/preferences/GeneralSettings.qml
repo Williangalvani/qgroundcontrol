@@ -505,6 +505,7 @@ QGCView {
 
                                     model:  ListModel {
                                         ListElement { text: "disabled" }
+                                        ListElement { text: "UDP Port"}
                                     }
 
                                     onActivated: {
@@ -518,19 +519,24 @@ QGCView {
                                         }
                                         var index = nmeaPortCombo.find(QGroundControl.settingsManager.autoConnectSettings.autoConnectNmeaPort.valueString);
                                         nmeaPortCombo.currentIndex = index;
+                                        if (QGroundControl.linkManager.serialPorts.length === 0) {
+                                            nmeaPortCombo.model.append({text: "Serial <none available>"})
+                                        }
                                     }
                                 }
 
                                 QGCLabel {
+                                    visible:          nmeaPortCombo.currentText !== "UDP Port" && nmeaPortCombo.currentText !== "disabled"
                                     text:             qsTr("NMEA GPS Baudrate")
                                 }
                                 QGCComboBox {
+                                    visible:                nmeaPortCombo.currentText !== "UDP Port" && nmeaPortCombo.currentText !== "disabled"
                                     id:                     nmeaBaudCombo
                                     Layout.preferredWidth:  _comboFieldWidth
                                     model:                  [4800, 9600, 19200, 38400, 57600, 115200]
 
                                     onActivated: {
-                                        if (index != -1) {
+                                        if (index !== -1) {
                                             QGroundControl.settingsManager.autoConnectSettings.autoConnectNmeaBaud.value = textAt(index);
                                         }
                                     }
@@ -538,6 +544,16 @@ QGCView {
                                         var index = nmeaBaudCombo.find(QGroundControl.settingsManager.autoConnectSettings.autoConnectNmeaBaud.valueString);
                                         nmeaBaudCombo.currentIndex = index;
                                     }
+                                }
+
+                                QGCLabel {
+                                    text:       qsTr("NMEA stream UDP port")
+                                    visible:    nmeaPortCombo.currentText === "UDP Port"
+                                }
+                                FactTextField {
+                                    visible:                nmeaPortCombo.currentText === "UDP Port"
+                                    Layout.preferredWidth:  _valueFieldWidth
+                                    fact:                   QGroundControl.settingsManager.autoConnectSettings.nmeaUdpPort
                                 }
                             }
                         }
