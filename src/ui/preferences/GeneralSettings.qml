@@ -760,6 +760,28 @@ QGCView {
                             }
 
                             QGCLabel {
+                                text:                   qsTr("Enable UDP Audio")
+                                visible:                QGroundControl.settingsManager.videoSettings.audioUdpEnabled.visible
+                            }
+                            FactCheckBox {
+                                text:                   ""
+                                fact:                   QGroundControl.settingsManager.videoSettings.audioUdpEnabled
+                                visible:                QGroundControl.settingsManager.videoSettings.audioUdpEnabled.visible
+                            }
+
+                            QGCLabel {
+                                text:                   qsTr("Audio UDP Port")
+                                visible:                QGroundControl.settingsManager.videoSettings.audioUdpEnabled.value
+                                                        && QGroundControl.settingsManager.videoSettings.audioUdpPort.visible
+                            }
+                            FactTextField {
+                                Layout.preferredWidth:  _comboFieldWidth
+                                fact:                   QGroundControl.settingsManager.videoSettings.audioUdpPort
+                                visible:                QGroundControl.settingsManager.videoSettings.audioUdpEnabled.value
+                                                        && QGroundControl.settingsManager.videoSettings.audioUdpPort.visible
+                            }
+
+                            QGCLabel {
                                 text:                   qsTr("Disable When Disarmed")
                                 visible:                _isGst && QGroundControl.settingsManager.videoSettings.disableWhenDisarmed.visible
                             }
