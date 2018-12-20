@@ -87,6 +87,7 @@ public slots:
     virtual void setUri                     (const QString& uri);
     virtual void stopRecording              ();
     virtual void startRecording             (const QString& videoFile = QString());
+    virtual void updateAudioPort            ();
 
 protected slots:
     virtual void _updateTimer               ();
@@ -124,6 +125,7 @@ protected:
     Sink*               _sink;
     GstElement*         _tee;
     float               _volume;
+    uint32_t            _audioUdpPort;
 
     static gboolean             _onBusMessage           (GstBus* bus, GstMessage* message, gpointer user_data);
     static GstPadProbeReturn    _unlinkCallBack         (GstPad* pad, GstPadProbeInfo* info, gpointer user_data);
