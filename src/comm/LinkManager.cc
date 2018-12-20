@@ -498,6 +498,14 @@ void LinkManager::_updateAutoConnectLinks(void)
             _nmeaSocket->bind(QHostAddress::AnyIPv4, _autoConnectSettings->nmeaUdpPort()->cookedValue().toUInt());
             _toolbox->qgcPositionManager()->setNmeaSourceDevice(_nmeaSocket);
         }
+        //close serial port
+        if (_nmeaPort) {
+            _nmeaPort->close();
+            delete _nmeaPort;
+            _nmeaPort = nullptr;
+            _nmeaDeviceName = "";
+        }
+
     }
     else if (_nmeaSocket) {
         _nmeaSocket->close();
