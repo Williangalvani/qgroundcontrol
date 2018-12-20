@@ -85,7 +85,7 @@ VideoReceiver::VideoReceiver(QObject* parent)
     connect(this, &VideoReceiver::msgStateChangedReceived, this, &VideoReceiver::_handleStateChanged);
     connect(&_frameTimer, &QTimer::timeout, this, &VideoReceiver::_updateTimer);
     _frameTimer.start(1000);
-    _startAudio();
+    updateAudioPipeline();
     loadSettings();
 #endif
 }
@@ -94,17 +94,9 @@ VideoReceiver::~VideoReceiver()
 {
 #if defined(QGC_GST_STREAMING)
     stop();
+    _stopAudio();
     if(_socket) {
         delete _socket;
-    }
-    if(_audioPipeline) {
-        if(_gstVolume) {
-            gst_object_unref(_gstVolume);
-            _gstVolume = NULL;
-        }
-        gst_element_set_state(_audioPipeline, GST_STATE_NULL);
-        gst_object_unref(_audioPipeline);
-        _audioPipeline = NULL;
     }
     if (_videoSink) {
         gst_object_unref(_videoSink);
@@ -522,6 +514,31 @@ VideoReceiver::updateAudioPort()
         }
     }
 }
+
+
+void
+VideoReceiver::updateAudioPipeline()
+{
+    _stopAudio();
+    if (_videoSettings->audioUdpEnabled()->rawValue().toBool()) {
+        _startAudio();
+    }
+}
+
+void
+VideoReceiver::_stopAudio() {
+    qCDebug(VideoReceiverLog) << "Stopping audio pipeline";
+    if(_audioPipeline) {
+        if(_gstVolume) {
+            gst_object_unref(_gstVolume);
+            _gstVolume = NULL;
+        }
+        gst_element_set_state(_audioPipeline, GST_STATE_NULL);
+        gst_object_unref(_audioPipeline);
+        _audioPipeline = NULL;
+    }
+}
+
 
 void
 VideoReceiver::setVolume(float vol)

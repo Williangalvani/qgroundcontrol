@@ -88,6 +88,7 @@ public slots:
     virtual void stopRecording              ();
     virtual void startRecording             (const QString& videoFile = QString());
     virtual void updateAudioPort            ();
+    virtual void updateAudioPipeline        ();
 
 protected slots:
     virtual void _updateTimer               ();
@@ -137,6 +138,7 @@ protected:
     virtual void                _cleanupOldVideos       ();
     virtual void                _setVideoSink           (GstElement* sink);
     virtual void                _startAudio             ();
+    virtual void                _stopAudio              ();
 
     GstElement*     _pipeline;
     GstElement*     _pipelineStopRec;
