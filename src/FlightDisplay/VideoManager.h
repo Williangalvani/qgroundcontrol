@@ -77,6 +77,7 @@ signals:
 private slots:
     void _videoSourceChanged        ();
     void _udpPortChanged            ();
+    void _audioUdpPortChanged       ();
     void _rtspUrlChanged            ();
     void _tcpUrlChanged             ();
     void _updateUVC                 ();
@@ -87,6 +88,7 @@ private slots:
 private:
     void _updateSettings            ();
     void _restartVideo              ();
+    void _updateAudioPort           ();
 
     VideoReceiver*  _videoReceiver;
     VideoSettings*  _videoSettings;
