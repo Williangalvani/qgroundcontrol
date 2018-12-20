@@ -63,6 +63,7 @@ VideoManager::setToolbox(QGCToolbox *toolbox)
    connect(_videoSettings->videoSource(),   &Fact::rawValueChanged, this, &VideoManager::_videoSourceChanged);
    connect(_videoSettings->udpPort(),       &Fact::rawValueChanged, this, &VideoManager::_udpPortChanged);
    connect(_videoSettings->audioUdpPort(),  &Fact::rawValueChanged, this, &VideoManager::_audioUdpPortChanged);
+   connect(_videoSettings->audioUdpEnabled(), &Fact::rawValueChanged, this, &VideoManager::_audioUdpEnabledChanged);
    connect(_videoSettings->rtspUrl(),       &Fact::rawValueChanged, this, &VideoManager::_rtspUrlChanged);
    connect(_videoSettings->tcpUrl(),        &Fact::rawValueChanged, this, &VideoManager::_tcpUrlChanged);
    connect(_videoSettings->aspectRatio(),   &Fact::rawValueChanged, this, &VideoManager::_aspectRatioChanged);
@@ -135,6 +136,13 @@ void
 VideoManager::_audioUdpPortChanged()
 {
     _updateAudioPort();
+}
+
+//-----------------------------------------------------------------------------
+void
+VideoManager::_audioUdpEnabledChanged()
+{
+    _updateAudioPipeline();
 }
 
 //-----------------------------------------------------------------------------
@@ -240,6 +248,17 @@ VideoManager::_updateAudioPort()
     if(!_videoReceiver)
         return;
     _videoReceiver->updateAudioPort();
+#endif
+}
+//-----------------------------------------------------------------------------
+
+void
+VideoManager::_updateAudioPipeline()
+{
+#if defined(QGC_GST_STREAMING)
+    if(!_videoReceiver)
+        return;
+    _videoReceiver->updateAudioPipeline();
 #endif
 }
 

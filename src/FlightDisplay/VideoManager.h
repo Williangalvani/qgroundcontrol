@@ -78,6 +78,8 @@ private slots:
     void _videoSourceChanged        ();
     void _udpPortChanged            ();
     void _audioUdpPortChanged       ();
+    void _updateAudioPipeline       ();
+    void _audioUdpEnabledChanged    ();
     void _rtspUrlChanged            ();
     void _tcpUrlChanged             ();
     void _updateUVC                 ();
