@@ -100,6 +100,7 @@ void SerialLink::_writeBytes(const QByteArray data)
  **/
 void SerialLink::_disconnect(void)
 {
+    qDebug() << "closing port" << _serialConfig->portName();
     if (_port) {
         _port->close();
         _port->deleteLater();
@@ -197,6 +198,7 @@ bool SerialLink::_hardwareConnect(QSerialPort::SerialPortError& error, QString& 
     }
 
     _port = new QSerialPort(_serialConfig->portName(), this);
+    qDebug() << "opening port" << _serialConfig->portName();
 
     QObject::connect(_port, static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
                      this, &SerialLink::linkError);
