@@ -137,11 +137,13 @@ public:
     const QVariantList& toolBarIndicators(const Vehicle* vehicle) final;
     bool  adjustIncomingMavlinkMessage(Vehicle* vehicle, mavlink_message_t* message) final;
     virtual QMap<QString, FactGroup*>* factGroups(void) final;
+    void adjustMetaData(MAV_TYPE vehicleType, FactMetaData* metaData);
 
 
 private:
     QVariantList _toolBarIndicators;
     static bool _remapParamNameIntialized;
+    QMap<QString, QString> factRenameMap;
     static FirmwarePlugin::remapParamNameMajorVersionMap_t  _remapParamName;
     void _handleNamedValueFloat(mavlink_message_t* message);
     void _handleMavlinkMessage(mavlink_message_t* message);
