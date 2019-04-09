@@ -275,6 +275,7 @@ VideoReceiver::start()
     GstElement*     queue       = nullptr;
     GstElement*     decoder     = nullptr;
     GstElement*     queue1      = nullptr;
+    jitterBuffer= nullptr;
 
     do {
         if ((_pipeline = gst_pipeline_new("receiver")) == nullptr) {
@@ -328,6 +329,10 @@ VideoReceiver::start()
                    qCritical() << "VideoReceiver::start() failed. Error with gst_element_factory_make('rtph264depay')";
                     break;
                 }
+                if ((jitterBuffer = gst_element_factory_make("rtpjitterbuffer", "rtp-jitterbuffer")) == nullptr) {
+                   qCritical() << "VideoReceiver::start() failed. Error with gst_element_factory_make('rtph264depay')";
+                    break;
+                }
             }
         }
 
@@ -362,13 +367,13 @@ VideoReceiver::start()
         if(isTaisyncUSB) {
             gst_bin_add_many(GST_BIN(_pipeline), dataSource, parser, _tee, queue, decoder, queue1, _videoSink, nullptr);
         } else {
-            gst_bin_add_many(GST_BIN(_pipeline), dataSource, demux, parser, _tee, queue, decoder, queue1, _videoSink, nullptr);
+            gst_bin_add_many(GST_BIN(_pipeline), dataSource, jitterBuffer, demux, parser, _tee, queue, decoder, queue1, _videoSink, nullptr);
         }
         pipelineUp = true;
 
         if(isUdp) {
             // Link the pipeline in front of the tee
-            if(!gst_element_link_many(dataSource, demux, parser, _tee, queue, decoder, queue1, _videoSink, nullptr)) {
+            if(!gst_element_link_many(dataSource, jitterBuffer, demux, parser, _tee, queue, decoder, queue1, _videoSink, nullptr)) {
                 qCritical() << "Unable to link UDP elements.";
                 break;
             }
@@ -891,7 +896,22 @@ VideoReceiver::_updateTimer()
         if(stopping() || starting()) {
             return;
         }
+
         if(streaming()) {
+            if (jitterBuffer) {
+                GstStructure *stats;
+                gchar *str;
+                /* get the source stats */
+                g_object_get (jitterBuffer, "stats", &stats, NULL);
+
+                /* simply dump the stats structure */
+                str = gst_structure_to_string (stats);
+                qCDebug(VideoReceiverLog) << str;
+
+                gst_structure_free (stats);
+                g_free (str);
+                //qCDebug(VideoReceiverLog) << QStringLiteral("Packets lost: %1").arg(intval);
+            }
             if(!_videoRunning) {
                 _videoSurface->setLastFrame(0);
                 _videoRunning = true;

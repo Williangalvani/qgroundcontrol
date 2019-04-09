@@ -130,6 +130,7 @@ protected:
     GstElement*     _pipeline;
     GstElement*     _pipelineStopRec;
     GstElement*     _videoSink;
+    GstElement*     jitterBuffer;
 
     //-- Wait for Video Server to show up before starting
     QTimer          _frameTimer;
