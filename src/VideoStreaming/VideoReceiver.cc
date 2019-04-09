@@ -352,6 +352,7 @@ VideoReceiver::start()
             qCritical() << "VideoReceiver::start() failed. Error with gst_element_factory_make('avdec_h264')";
             break;
         }
+        g_object_set(static_cast<gpointer>(decoder), "output-corrupt", FALSE, nullptr);
 
         if ((queue1 = gst_element_factory_make("queue", nullptr)) == nullptr) {
             qCritical() << "VideoReceiver::start() failed. Error with gst_element_factory_make('queue') [1]";
