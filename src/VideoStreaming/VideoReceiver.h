@@ -75,6 +75,7 @@ signals:
     void msgErrorReceived                   ();
     void msgEOSReceived                     ();
     void msgStateChangedReceived            ();
+    void recordedVideoStarted               ();
 #endif
 
 public slots:

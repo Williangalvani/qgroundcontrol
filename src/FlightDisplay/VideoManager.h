@@ -20,6 +20,7 @@
 #include "QGCLoggingCategory.h"
 #include "VideoReceiver.h"
 #include "QGCToolbox.h"
+#include "SubtitleWriter.h"
 
 Q_DECLARE_LOGGING_CATEGORY(VideoManagerLog)
 
@@ -95,6 +96,7 @@ private:
     void _updateSettings            ();
 
 private:
+    SubtitleWriter* _subtitleWriter     = nullptr;
     bool            _isTaisync          = false;
     VideoReceiver*  _videoReceiver      = nullptr;
     VideoSettings*  _videoSettings      = nullptr;

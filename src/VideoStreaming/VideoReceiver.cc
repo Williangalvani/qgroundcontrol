@@ -874,6 +874,7 @@ VideoReceiver::_keyframeWatch(GstPad* pad, GstPadProbeInfo* info, gpointer user_
             buf->dts = 0; // The offset will not apply to this current buffer, our first frame, timestamp is zero
             buf->pts = 0;
             qCDebug(VideoReceiverLog) << "Got keyframe, stop dropping buffers";
+            pThis->recordedVideoStarted();
         }
     }
 
