@@ -1125,18 +1125,39 @@ QGCCacheWorker::_lookupReady(QHostInfo info)
 #else
     _hostLookupID = 0;
     if(info.error() == QHostInfo::NoError && info.addresses().size()) {
-        QTcpSocket socket;
-        QNetworkProxy tempProxy;
-        tempProxy.setType(QNetworkProxy::DefaultProxy);
-        socket.setProxy(tempProxy);
-        socket.connectToHost(info.addresses().first(), 80);
-        if (socket.waitForConnected(2000)) {
-            qCDebug(QGCTileCacheLog) << "Yes Internet Access";
-            emit internetStatus(true);
-            return;
-        }
+        QTcpSocket *socket = new QTcpSocket;
+        QNetworkProxy *tempProxy = new QNetworkProxy();
+        tempProxy->setType(QNetworkProxy::DefaultProxy);
+        socket->setProxy(*tempProxy);
+        socket->connectToHost(info.addresses().first(), 80);
+        
+        connect(
+            socket, 
+            &QTcpSocket::connected,
+            [=](){
+                emit internetStatus(true);
+                qCDebug(QGCTileCacheLog) << "Yes Internet Access";
+                socket->close();
+                socket->deleteLater();
+                //tempProxy->deleteLater();
+            }
+        );
+
+        connect(socket, 
+                QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),
+                [=](QAbstractSocket::SocketError socketError) { 
+                    emit internetStatus(false);
+                    qCDebug(QGCTileCacheLog) << "No Internet Access";
+                    socket->deleteLater();
+                    //tempProxy->deleteLater();
+                }
+        );
+        // if (socket.waitForConnected(2000)) {
+        //     qCDebug(QGCTileCacheLog) << "Yes Internet Access";
+        //     emit internetStatus(true);
+        //     return;
+        // }
     }
-    qWarning() << "No Internet Access";
-    emit internetStatus(false);
+    
 #endif
 }
