@@ -404,6 +404,11 @@ void MAVLinkProtocol::_startLogging(void)
     if (qgcApp()->runningUnitTests()) {
         return;
     }
+
+    if(!_logStartTimestamp.isValid()) {
+        _logStartTimestamp = QDateTime::currentDateTime();
+    }
+
     AppSettings* appSettings = _app->toolbox()->settingsManager()->appSettings();
     if(appSettings->disableAllPersistence()->rawValue().toBool()) {
         return;
@@ -441,12 +446,13 @@ void MAVLinkProtocol::_stopLogging(void)
             if ((_vehicleWasArmed || _app->toolbox()->settingsManager()->appSettings()->telemetrySaveNotArmed()->rawValue().toBool()) &&
                 _app->toolbox()->settingsManager()->appSettings()->telemetrySave()->rawValue().toBool() &&
                 !_app->toolbox()->settingsManager()->appSettings()->disableAllPersistence()->rawValue().toBool()) {
-                emit saveTelemetryLog(_tempLogFile.fileName());
+                emit saveTelemetryLog(_tempLogFile.fileName(),  _logStartTimestamp);
             } else {
                 QFile::remove(_tempLogFile.fileName());
             }
         }
     }
+    _logStartTimestamp = QDateTime();
     _vehicleWasArmed = false;
 }
 
@@ -468,7 +474,7 @@ void MAVLinkProtocol::checkForLostLogFiles(void)
             QFile::remove(fileInfo.filePath());
             continue;
         }
-        emit saveTelemetryLog(fileInfo.filePath());
+        emit saveTelemetryLog(fileInfo.filePath(), _logStartTimestamp);
     }
 }
 

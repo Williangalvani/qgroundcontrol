@@ -145,7 +145,7 @@ signals:
     unsigned txbuf, unsigned noise, unsigned remnoise);
     
     /// Emitted when a temporary telemetry log file is ready for saving
-    void saveTelemetryLog(QString tempLogfile);
+    void saveTelemetryLog(QString tempLogfile, QDateTime timestamp);
 
     /// Emitted when a telemetry log is started to save.
     void checkTelemetrySavePath(void);
@@ -165,6 +165,7 @@ private:
     QGCTemporaryFile    _tempLogFile;            ///< File to log to
     static const char*  _tempLogFileTemplate;    ///< Template for temporary log file
     static const char*  _logFileExtension;       ///< Extension for log files
+    QDateTime           _logStartTimestamp;      ///< Timestamp of when logging started
 
     LinkManager*            _linkMgr;
     MultiVehicleManager*    _multiVehicleManager;

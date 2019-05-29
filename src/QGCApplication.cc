@@ -611,7 +611,7 @@ void QGCApplication::criticalMessageBoxOnMainThread(const QString& title, const 
     showMessage(msg);
 }
 
-void QGCApplication::saveTelemetryLogOnMainThread(QString tempLogfile)
+void QGCApplication::saveTelemetryLogOnMainThread(QString tempLogfile, QDateTime timestamp)
 {
     // The vehicle is gone now and we are shutting down so we need to use a message box for errors to hold shutdown and show the error
     if (_checkTelemetrySavePath(true /* useMessageBox */)) {
@@ -622,12 +622,16 @@ void QGCApplication::saveTelemetryLogOnMainThread(QString tempLogfile)
         QString nameFormat("%1%2.%3");
         QString dtFormat("yyyy-MM-dd hh-mm-ss");
 
+        if(!timestamp.isValid()) {
+            timestamp = QDateTime::currentDateTime();
+        }
+
         int tryIndex = 1;
         QString saveFileName = nameFormat.arg(
-            QDateTime::currentDateTime().toString(dtFormat)).arg("").arg(toolbox()->settingsManager()->appSettings()->telemetryFileExtension);
+            timestamp.toString(dtFormat)).arg("").arg(toolbox()->settingsManager()->appSettings()->telemetryFileExtension);
         while (saveDir.exists(saveFileName)) {
             saveFileName = nameFormat.arg(
-                QDateTime::currentDateTime().toString(dtFormat)).arg(QStringLiteral(".%1").arg(tryIndex++)).arg(toolbox()->settingsManager()->appSettings()->telemetryFileExtension);
+                timestamp.toString(dtFormat)).arg(QStringLiteral(".%1").arg(tryIndex++)).arg(toolbox()->settingsManager()->appSettings()->telemetryFileExtension);
         }
         QString saveFilePath = saveDir.absoluteFilePath(saveFileName);
 
