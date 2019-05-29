@@ -113,7 +113,7 @@ public slots:
     void qmlAttemptWindowClose();
 
     /// Save the specified telemetry Log
-    void saveTelemetryLogOnMainThread(QString tempLogfile);
+    void saveTelemetryLogOnMainThread(QString tempLogfile, QDateTime timestamp);
 
     /// Check that the telemetry save path is set correctly
     void checkTelemetrySavePathOnMainThread();
