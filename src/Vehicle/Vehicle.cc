@@ -282,9 +282,8 @@ Vehicle::Vehicle(LinkInterface*             link,
     }
 
     _firmwarePlugin->initializeVehicle(this);
-    for(auto& factName: factNames()) {
-        _firmwarePlugin->adjustMetaData(vehicleType, getFact(factName)->metaData());
-    }
+    // Adjust facts metadata
+    _firmwarePlugin->adjustFactsMetaData(this);
 
     _sendMultipleTimer.start(_sendMessageMultipleIntraMessageDelay);
     connect(&_sendMultipleTimer, &QTimer::timeout, this, &Vehicle::_sendMessageMultipleNext);

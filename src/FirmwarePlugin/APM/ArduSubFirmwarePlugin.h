@@ -137,7 +137,7 @@ public:
     const QVariantList& toolBarIndicators(const Vehicle* vehicle) final;
     bool  adjustIncomingMavlinkMessage(Vehicle* vehicle, mavlink_message_t* message) final;
     virtual QMap<QString, FactGroup*>* factGroups(void) final;
-    void adjustMetaData(MAV_TYPE vehicleType, FactMetaData* metaData) override final;
+    void adjustFactsMetaData(Vehicle* vehicle) override final;
 
 
 private:

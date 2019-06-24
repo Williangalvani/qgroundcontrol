@@ -316,9 +316,8 @@ public:
     int versionCompare(Vehicle* vehicle, int major, int minor, int patch);
 
     /// Allows the Firmware plugin to override the facts meta data.
-    ///     @param vehicleType - Type of current vehicle
-    ///     @param metaData - MetaData for fact
-    virtual void adjustMetaData(MAV_TYPE vehicleType, FactMetaData* metaData) {Q_UNUSED(vehicleType); Q_UNUSED(metaData);}
+    ///     @param vehicle - current vehicle
+    virtual void adjustFactsMetaData(Vehicle* vehicle) {Q_UNUSED(vehicle);}
 
     // FIXME: Hack workaround for non pluginize FollowMe support
     static const QString px4FollowMeFlightMode;

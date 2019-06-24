@@ -317,13 +317,29 @@ QString ArduSubFirmwarePlugin::vehicleImageOutline(const Vehicle* vehicle) const
     return vehicleImageOpaque(vehicle);
 }
 
-void ArduSubFirmwarePlugin::adjustMetaData(MAV_TYPE vehicleType, FactMetaData* metaData)
+void ArduSubFirmwarePlugin::adjustFactsMetaData(Vehicle* vehicle)
 {
-    Q_UNUSED(vehicleType);
-    if (!metaData) {
+    if (!vehicle) {
         return;
     }
-    if (_factRenameMap.contains(metaData->name())) {
-        metaData->setShortDescription(QString(_factRenameMap[metaData->name()]));
+
+    for (auto longFactName: _factRenameMap.keys()) {
+        if(!longFactName.contains(QStringLiteral("."))){
+            Fact* fact = vehicle->getFact(longFactName);
+            if(fact){
+                fact->metaData()->setShortDescription(QString(_factRenameMap[longFactName]));
+            }
+        } else {
+            QString groupName = longFactName.split(QStringLiteral("."))[0];
+            QString factName = longFactName.split(QStringLiteral("."))[1];
+            FactGroup* group = vehicle->getFactGroup(groupName);
+            if(!group) {
+                continue;
+            }
+            Fact* fact = group->getFact(factName);
+            if(fact) {
+                fact->metaData()->setShortDescription(QString(_factRenameMap[longFactName]));
+            }
+        }
     }
 }
