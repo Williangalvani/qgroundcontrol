@@ -326,22 +326,9 @@ void ArduSubFirmwarePlugin::adjustFactsMetaData(Vehicle* vehicle)
     }
 
     for (auto longFactName: _factRenameMap.keys()) {
-        if(!longFactName.contains(QStringLiteral("."))){
-            Fact* fact = vehicle->getFact(longFactName);
-            if(fact){
-                fact->metaData()->setShortDescription(QString(_factRenameMap[longFactName]));
-            }
-        } else {
-            QString groupName = longFactName.split(QStringLiteral("."))[0];
-            QString factName = longFactName.split(QStringLiteral("."))[1];
-            FactGroup* group = vehicle->getFactGroup(groupName);
-            if(!group) {
-                continue;
-            }
-            Fact* fact = group->getFact(factName);
-            if(fact) {
-                fact->metaData()->setShortDescription(QString(_factRenameMap[longFactName]));
-            }
+        Fact* fact = vehicle->getFact(longFactName);
+        if(fact){
+            fact->metaData()->setShortDescription(QString(_factRenameMap[longFactName]));
         }
     }
 }
