@@ -20,6 +20,7 @@ import QGroundControl.ScreenTools   1.0
 SetupPage {
     id:             tuningPage
     pageComponent:  tuningPageComponent
+    property   bool olderThan360:  activeVehicle.versionCompare(3, 6, 0) < 0
 
     Component {
         id: tuningPageComponent
@@ -136,26 +137,63 @@ SetupPage {
                 height:             wpnavColumn.height + _margins*2
                 color:              palette.windowShade
 
-                Column {
-                    id:                 wpnavColumn
-                    anchors.margins:    _margins
+                // WPNAV parameters up to 3.5
+                Component {
+                    id: wpnavColumn35
+                    Column {
+                        anchors.margins:    _margins
+                        anchors.left:       parent.left
+                        anchors.right:      parent.right
+                        anchors.top:        parent.top
+                        spacing:            _margins*1.5
+
+
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_ACCEL") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_ACCEL_Z") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_JERK") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_MAXA") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_MINA") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_SPEED") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_RADIUS") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED_DN") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED_UP") }
+                    }
+                }
+
+                // WPNAV parameters for 3.6 and upwards
+                Component {
+                    id: wpnavColumn36
+                    Column {
+                        anchors.margins:    _margins
+                        anchors.left:       parent.left
+                        anchors.right:      parent.right
+                        anchors.top:        parent.top
+                        spacing:            _margins*1.5
+
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_ACCEL") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_ACCEL_Z") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_RADIUS") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED_DN") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED_UP") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "LOIT_SPEED") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "LOIT_ACC_MAX") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "LOIT_ANG_MAX") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "LOIT_BRK_ACCEL") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "LOIT_BRK_DELAY") }
+                        FactTextFieldSlider { fact: controller.getParameterFact(-1, "LOIT_BRK_JERK") }
+                    }
+                }
+
+                Loader {
+                    id: wpnavColumn
                     anchors.left:       parent.left
                     anchors.right:      parent.right
                     anchors.top:        parent.top
-                    spacing:            _margins*1.5
 
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_ACCEL") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_ACCEL_Z") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_JERK") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_MAXA") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_MINA") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_LOIT_SPEED") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_RADIUS") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED_DN") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "WPNAV_SPEED_UP") }
-
-                } // Column - WPNAV parameters
+                    sourceComponent: olderThan360 ? wpnavColumn35 : wpnavColumn36
+                    }
             } // Rectangle - WPNAV parameters
         } // Column
     } // Component
