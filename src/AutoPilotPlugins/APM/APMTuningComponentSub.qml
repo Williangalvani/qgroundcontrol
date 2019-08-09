@@ -114,17 +114,17 @@ SetupPage {
                     anchors.top:        parent.top
                     spacing:            _margins*1.5
 
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "POS_XY_P") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "POS_Z_P") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "VEL_XY_P") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "VEL_XY_I") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "VEL_XY_IMAX") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "VEL_Z_P") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "ACCEL_Z_D") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "ACCEL_Z_FILT") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "ACCEL_Z_I") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "ACCEL_Z_IMAX") }
-                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "ACCEL_Z_P") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_POSXY_P") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_POSZ_P") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_VELXY_P") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_VELXY_I") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_VELXY_IMAX") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_VELZ_P") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_ACCZ_D") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_ACCZ_FILT") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_ACCZ_I") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_ACCZ_IMAX") }
+                    FactTextFieldSlider { fact: controller.getParameterFact(-1, "r.PSC_ACCZ_P") }
 
                 } // Column - VEL parameters
             } // Rectangle - VEL parameters
