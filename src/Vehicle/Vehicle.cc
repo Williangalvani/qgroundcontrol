@@ -746,6 +746,9 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
         _handleGlobalPositionInt(message);
         break;
+    case MAVLINK_MSG_ID_SIMSTATE:
+        _handleSimState(message);
+        break;
     case MAVLINK_MSG_ID_ALTITUDE:
         _handleAltitude(message);
         break;
@@ -1155,6 +1158,25 @@ void Vehicle::_handleGlobalPositionInt(mavlink_message_t& message)
 
     _globalPositionIntMessageAvailable = true;
     QGeoCoordinate newPosition(globalPositionInt.lat  / (double)1E7, globalPositionInt.lon / (double)1E7, globalPositionInt.alt  / 1000.0);
+    if (newPosition != _coordinate) {
+        _coordinate = newPosition;
+        emit coordinateChanged(_coordinate);
+    }
+}
+
+void Vehicle::_handleSimState(mavlink_message_t& message)
+{
+    mavlink_simstate_t simstate;
+    mavlink_msg_simstate_decode(&message, &simstate);
+    
+    // ArduPilot sends bogus GLOBAL_POSITION_INT messages with lat/lat 0/0 even when it has no gps signal
+    // Apparently, this is in order to transport relative altitude information.
+    if (simstate.lat == 0 && simstate.lng == 0) {
+        return;
+    }
+
+    _globalPositionIntMessageAvailable = true;
+    QGeoCoordinate newPosition(simstate.lat  / (double)1E7, simstate.lng / (double)1E7);
     if (newPosition != _coordinate) {
         _coordinate = newPosition;
         emit coordinateChanged(_coordinate);
