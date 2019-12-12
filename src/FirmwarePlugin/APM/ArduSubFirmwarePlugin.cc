@@ -42,6 +42,7 @@ APMSubMode::APMSubMode(uint32_t mode, bool settable) :
     enumToString.insert(CIRCLE, "Circle");
     enumToString.insert(SURFACE, "Surface");
     enumToString.insert(POSHOLD, "Position Hold");
+    enumToString.insert(MOTORDETECTION, "Motor Detection");
 
     setEnumToStringMapping(enumToString);
 }
@@ -59,6 +60,7 @@ ArduSubFirmwarePlugin::ArduSubFirmwarePlugin(void):
     supportedFlightModes << APMSubMode(APMSubMode::CIRCLE ,true);
     supportedFlightModes << APMSubMode(APMSubMode::SURFACE ,false);
     supportedFlightModes << APMSubMode(APMSubMode::POSHOLD ,true);
+    supportedFlightModes << APMSubMode(APMSubMode::MOTORDETECTION, false);
     setSupportedModes(supportedFlightModes);
 
     if (!_remapParamNameIntialized) {
