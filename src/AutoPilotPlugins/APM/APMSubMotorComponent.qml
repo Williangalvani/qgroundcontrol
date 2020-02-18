@@ -27,8 +27,8 @@ SetupPage {
     readonly property int _sliderHeight:    10
 
     property int neutralValue: 50;
+    property bool canDoManualTest: controller.vehicle.flightMode !== 'Motor Detection' && controller.vehicle.armed && motorPage.visible && !flightView.visible
     property int _lastIndex: 0;
-    property bool canDoManualTest: controller.vehicle.flightMode !== 'Motor Detection' && controller.vehicle.armed && motorPage.visible
 
     APMSubMotorComponentController {
         id:             controller
@@ -281,6 +281,9 @@ SetupPage {
                 running:        canDoManualTest
 
                 onTriggered: {
+                    if (!canDoManualTest) {
+                        return
+                    }
                     if (controller.vehicle.armed) {
                             var slider = sliderRepeater.itemAt(_lastIndex)
 
