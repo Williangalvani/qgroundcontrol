@@ -28,6 +28,7 @@ SetupPage {
 
     property int neutralValue: 50;
     property bool canDoManualTest: controller.vehicle.flightMode !== 'Motor Detection' && controller.vehicle.armed && motorPage.visible && !flightView.visible
+    property var shouldRunManualTest: false // Does the oeprator intend to run the motor test?
     property int _lastIndex: 0;
 
     APMSubMotorComponentController {
@@ -49,7 +50,7 @@ SetupPage {
 
             Row {
                 id:         motorSliders
-                enabled:    canDoManualTest
+                enabled:    canDoManualTest && shouldRunManualTest
                 spacing:    ScreenTools.defaultFontPixelWidth * 4
 
                 Column {
@@ -169,7 +170,7 @@ SetupPage {
                     id: safetySwitch
                     onToggled: {
                         if (controller.vehicle.armed) {
-                            timer.stop()
+                            shouldRunManualTest = false
                             enabled = false
                             coolDownTimer.start()
                         }
@@ -186,11 +187,11 @@ SetupPage {
                     {
                         safetySwitch.checked = armed
                             if (!armed) {
-                                timer.stop()
+                                shouldRunManualTest = false
                                 safetySwitch.enabled = false
                                 coolDownTimer.start()
                             } else {
-                                timer.start()
+                                shouldRunManualTest = true
                             }
                             for (var sliderIndex=0; sliderIndex<sliderRepeater.count; sliderIndex++) {
                                 sliderRepeater.itemAt(sliderIndex).motorSlider.value = neutralValue
