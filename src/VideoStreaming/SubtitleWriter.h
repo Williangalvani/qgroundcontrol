@@ -49,6 +49,7 @@ private:
     QTimer _timer;
     QStringList _values;
     QDateTime _startTime;
+    QTime _lastEndTime;
     QFile _file;
 
     VideoReceiver* _videoReceiver;
