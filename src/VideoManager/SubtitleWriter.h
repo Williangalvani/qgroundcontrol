@@ -35,6 +35,10 @@ public:
     // starts capturing vehicle telemetry.
     void startCapturingTelemetry(const QString& videoFile);
     void stopCapturingTelemetry();
+    struct FactPath {
+        QString groupName;
+        QString factName;
+    };
 
 private slots:
     // Captures a snapshot of telemetry data from vehicle into the subtitles file.
@@ -42,8 +46,7 @@ private slots:
 
 private:
     QTimer _timer;
-    QStringList _values;
-    QDateTime _startTime;
+    QList<FactPath> _facts;
     QTime _lastEndTime;
     QFile _file;
 

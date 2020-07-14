@@ -22,6 +22,15 @@
 #include <QDate>
 
 QGC_LOGGING_CATEGORY(SubtitleWriterLog, "SubtitleWriterLog")
+const QString vehicleFactGroupName = QStringLiteral("Vehicle");
+
+QStringList settingsSources{
+    QStringLiteral("ValuePageUserSettings2"),
+    QStringLiteral("ValuePageDefaultSettings2")
+};
+
+const QString factNameTemplate = QStringLiteral("rows/%1/columns/%2/factName");
+const QString groupNameTemplate = QStringLiteral("rows/%1/columns/%2/groupName");
 
 const int SubtitleWriter::_sampleRate = 1; // Sample rate in Hz for getting telemetry data, most players do weird stuff when > 1Hz
 
@@ -33,11 +42,42 @@ SubtitleWriter::SubtitleWriter(QObject* parent)
 
 void SubtitleWriter::startCapturingTelemetry(const QString& videoFile)
 {
-    // Get the facts displayed in the values widget and capture them, removing the "Vehicle." prefix.
-    QSettings settings;
-    settings.beginGroup("ValuesWidget");
-    _values = settings.value("large").toStringList().replaceInStrings(QStringLiteral("Vehicle."), QString());
-    _values += settings.value("small").toStringList().replaceInStrings(QStringLiteral("Vehicle."), QString());
+    // Delete facts of last run
+    _facts.clear();
+
+    // check user settings first, use default if user settings are empty
+    for (const QString& settingsGroup : settingsSources) {
+        QSettings settings;
+        settings.beginGroup(settingsGroup);
+        // read number of rows and make sure it is valid
+        const QVariant nRowsVariant = settings.value(QStringLiteral("rows/size"));
+        if (!nRowsVariant.canConvert(QMetaType::Int)) {
+            qCDebug(SubtitleWriterLog) << "Got an invalid row size, aborting";
+            return;
+        }
+        const int nRows = nRowsVariant.toInt();
+
+        // iterate through all rows and columns saving the facts into _facts
+        for(int row = 1; row < nRows + 1; row++) {
+            QVariant nColumnsVariant = settings.value(QStringLiteral("rows/%1/columns/size").arg(row));
+            // read number of columns for this row and make sure it is valid
+            if (!nColumnsVariant.canConvert(QMetaType::Int)) {
+                qCDebug(SubtitleWriterLog) << "Got an invalid Column size, aborting";
+                return;
+            }
+            const int nColumns = nColumnsVariant.toInt();
+
+            for(int column = 1; column < nColumns + 1; column++) {
+                QString factGroupName = settings.value(groupNameTemplate.arg(row).arg(column)).toString();
+                QString factName = settings.value(factNameTemplate.arg(row).arg(column)).toString();
+                _facts += FactPath{factGroupName, factName};
+            }
+        }
+        if (!_facts.isEmpty()) {
+            // We have user settings, don't use the default ones
+            break;
+        }
+    }
 
     // One subtitle always starts where the previous ended
     _lastEndTime = QTime(0, 0);
@@ -102,10 +142,23 @@ void SubtitleWriter::_captureTelemetry()
     QStringList valuesStrings;
 
     // Make a list of "factname:" strings and other with the values, so one can be aligned left and the other right
-    for (const auto& i : _values) {
-        valuesStrings << QStringLiteral("%2 %3").arg(vehicle->getFact(i)->cookedValueString())
-                                                .arg(vehicle->getFact(i)->cookedUnits());
-        namesStrings << QStringLiteral("%1:").arg(vehicle->getFact(i)->shortDescription());
+    for (const FactPath& factPath : _facts) {
+        Fact* fact;
+        //Vehicle facts
+        if(factPath.groupName == vehicleFactGroupName){
+            fact = vehicle->getFact(factPath.factName);
+        } else {
+            // Facts in FactGroups
+            FactGroup* group = vehicle->getFactGroup(factPath.groupName);
+            if (group) {
+                fact = group->getFact(factPath.factName);
+            } else {
+                continue;
+            }
+        }
+        valuesStrings << QStringLiteral("%2 %3").arg(fact->cookedValueString())
+                                                .arg(fact->cookedUnits());
+        namesStrings << QStringLiteral("%1:").arg(fact->shortDescription());
     }
 
     // The time to start displaying this subtitle text
@@ -118,7 +171,7 @@ void SubtitleWriter::_captureTelemetry()
     // This splits the screen in N parts and uses the N-1 internal parts to align the subtitles to.
     // Should we try to get the resolution from the pipeline? This seems to work fine with other resolutions too.
     static const int rowWidth = (1920 + offsetFactor)/(nRows+1);
-    int nValuesByRow = ceil(_values.length() / nRows);
+    int nValuesByRow = ceil(_facts.length() / nRows);
 
     QList<QStringList> dataColumns;
     QStringList stringColumns;
