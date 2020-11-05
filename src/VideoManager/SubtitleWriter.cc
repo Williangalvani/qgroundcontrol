@@ -22,15 +22,15 @@
 #include <QDate>
 
 QGC_LOGGING_CATEGORY(SubtitleWriterLog, "SubtitleWriterLog")
-const QString vehicleFactGroupName = QStringLiteral("Vehicle");
+const QString SubtitleWriter::vehicleFactGroupName = QStringLiteral("Vehicle");
 
-QStringList settingsSources{
+const QStringList SubtitleWriter::settingsSources = QStringList{
     QStringLiteral("ValuePageUserSettings2"),
     QStringLiteral("ValuePageDefaultSettings2")
 };
 
-const QString factNameTemplate = QStringLiteral("rows/%1/columns/%2/factName");
-const QString groupNameTemplate = QStringLiteral("rows/%1/columns/%2/groupName");
+const QString SubtitleWriter::factNameTemplate = QStringLiteral("rows/%1/columns/%2/factName");
+const QString SubtitleWriter::groupNameTemplate = QStringLiteral("rows/%1/columns/%2/groupName");
 
 const int SubtitleWriter::_sampleRate = 1; // Sample rate in Hz for getting telemetry data, most players do weird stuff when > 1Hz
 

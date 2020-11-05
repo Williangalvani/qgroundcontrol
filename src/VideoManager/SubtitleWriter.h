@@ -40,6 +40,15 @@ public:
         QString factName;
     };
 
+    static const QString vehicleFactGroupName;
+
+    static const QStringList settingsSources;
+
+    static const QString factNameTemplate;
+    static const QString groupNameTemplate;;
+
+    static const int _sampleRate; // Sample rate in Hz for getting telemetry data, most players do weird stuff when > 1Hz
+
 private slots:
     // Captures a snapshot of telemetry data from vehicle into the subtitles file.
     void _captureTelemetry();
@@ -50,5 +59,4 @@ private:
     QTime _lastEndTime;
     QFile _file;
 
-    static const int _sampleRate;
 };
