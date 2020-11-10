@@ -25,12 +25,12 @@ QGC_LOGGING_CATEGORY(SubtitleWriterLog, "SubtitleWriterLog")
 const QString SubtitleWriter::vehicleFactGroupName = QStringLiteral("Vehicle");
 
 const QStringList SubtitleWriter::settingsSources = QStringList{
-    QStringLiteral("ValuePageUserSettings2"),
-    QStringLiteral("ValuePageDefaultSettings2")
+    QStringLiteral("TelemetryBarUserSettingsWIP02-0"),
+    QStringLiteral("TelemetryBarDefaultSettingsWIP02-2")
 };
 
-const QString SubtitleWriter::factNameTemplate = QStringLiteral("rows/%1/columns/%2/factName");
-const QString SubtitleWriter::groupNameTemplate = QStringLiteral("rows/%1/columns/%2/groupName");
+const QString SubtitleWriter::factNameTemplate = QStringLiteral("columns/%2/rows/%1/factName");
+const QString SubtitleWriter::groupNameTemplate = QStringLiteral("columns/%2/rows/%1/factGroupName");
 
 const int SubtitleWriter::_sampleRate = 1; // Sample rate in Hz for getting telemetry data, most players do weird stuff when > 1Hz
 
@@ -50,24 +50,24 @@ void SubtitleWriter::startCapturingTelemetry(const QString& videoFile)
         QSettings settings;
         settings.beginGroup(settingsGroup);
         // read number of rows and make sure it is valid
-        const QVariant nRowsVariant = settings.value(QStringLiteral("rows/size"));
+        const QVariant nRowsVariant = settings.value(QStringLiteral("rowCount"));
         if (!nRowsVariant.canConvert(QMetaType::Int)) {
             qCDebug(SubtitleWriterLog) << "Got an invalid row size, aborting";
             return;
         }
         const int nRows = nRowsVariant.toInt();
 
-        // iterate through all rows and columns saving the facts into _facts
-        for(int row = 1; row < nRows + 1; row++) {
-            QVariant nColumnsVariant = settings.value(QStringLiteral("rows/%1/columns/size").arg(row));
+        const QVariant nColumnsVariant = settings.value(QStringLiteral("columns/size"));
             // read number of columns for this row and make sure it is valid
             if (!nColumnsVariant.canConvert(QMetaType::Int)) {
                 qCDebug(SubtitleWriterLog) << "Got an invalid Column size, aborting";
                 return;
             }
-            const int nColumns = nColumnsVariant.toInt();
+        const int nColumns = nColumnsVariant.toInt();
 
-            for(int column = 1; column < nColumns + 1; column++) {
+        // iterate through all rows and columns saving the facts into _facts
+        for(int column = 1; column < nColumns + 1; column++) {
+            for(int row = 1; row < nRows + 1; row++) {
                 QString factGroupName = settings.value(groupNameTemplate.arg(row).arg(column)).toString();
                 QString factName = settings.value(factNameTemplate.arg(row).arg(column)).toString();
                 _facts += FactPath{factGroupName, factName};
