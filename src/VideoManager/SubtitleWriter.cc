@@ -17,20 +17,14 @@
 #include "SubtitleWriter.h"
 #include "QGCApplication.h"
 #include "QGCCorePlugin.h"
+#include "FactValueGrid.h"
+#include "InstrumentValueData.h"
 #include <QDateTime>
 #include <QString>
 #include <QDate>
 
+
 QGC_LOGGING_CATEGORY(SubtitleWriterLog, "SubtitleWriterLog")
-const QString SubtitleWriter::vehicleFactGroupName = QStringLiteral("Vehicle");
-
-const QStringList SubtitleWriter::settingsSources = QStringList{
-    QStringLiteral("TelemetryBarUserSettingsWIP02-0"),
-    QStringLiteral("TelemetryBarDefaultSettingsWIP02-2")
-};
-
-const QString SubtitleWriter::factNameTemplate = QStringLiteral("columns/%2/rows/%1/factName");
-const QString SubtitleWriter::groupNameTemplate = QStringLiteral("columns/%2/rows/%1/factGroupName");
 
 const int SubtitleWriter::_sampleRate = 1; // Sample rate in Hz for getting telemetry data, most players do weird stuff when > 1Hz
 
@@ -42,29 +36,24 @@ SubtitleWriter::SubtitleWriter(QObject* parent)
 
 void SubtitleWriter::startCapturingTelemetry(const QString& videoFile)
 {
+    FactValueGrid* grid = new FactValueGrid(nullptr);
+    grid->_loadSettings();
+    for (int colIndex=0; colIndex<grid->columns()->count(); colIndex++) {
+        QmlObjectListModel* list = grid->columns()->value<QmlObjectListModel*>(colIndex);
+        //list->removeAt(list->count() - 1)->deleteLater();
+        qCDebug(SubtitleWriterLog) << list;
+         for (int rowIndex=0; rowIndex<list->count(); rowIndex++) {
+            InstrumentValueData* value = list->value<InstrumentValueData*>(rowIndex);
+            qCDebug(SubtitleWriterLog) <<   "value: " << value;
+         }
+        
+    }
+
+    //qCDebug(SubtitleWriterLog) << grid->columns()->count();
+
     // Delete facts of last run
     _facts.clear();
-
-    // check user settings first, use default if user settings are empty
-    for (const QString& settingsGroup : settingsSources) {
-        QSettings settings;
-        settings.beginGroup(settingsGroup);
-        // read number of rows and make sure it is valid
-        const QVariant nRowsVariant = settings.value(QStringLiteral("rowCount"));
-        if (!nRowsVariant.canConvert(QMetaType::Int)) {
-            qCDebug(SubtitleWriterLog) << "Got an invalid row size, aborting";
-            return;
-        }
-        const int nRows = nRowsVariant.toInt();
-
-        const QVariant nColumnsVariant = settings.value(QStringLiteral("columns/size"));
-            // read number of columns for this row and make sure it is valid
-            if (!nColumnsVariant.canConvert(QMetaType::Int)) {
-                qCDebug(SubtitleWriterLog) << "Got an invalid Column size, aborting";
-                return;
-            }
-        const int nColumns = nColumnsVariant.toInt();
-
+    /*
         // iterate through all rows and columns saving the facts into _facts
         for(int column = 1; column < nColumns + 1; column++) {
             for(int row = 1; row < nRows + 1; row++) {
@@ -78,7 +67,7 @@ void SubtitleWriter::startCapturingTelemetry(const QString& videoFile)
             break;
         }
     }
-
+    */
     // One subtitle always starts where the previous ended
     _lastEndTime = QTime(0, 0);
 
@@ -142,7 +131,7 @@ void SubtitleWriter::_captureTelemetry()
     QStringList valuesStrings;
 
     // Make a list of "factname:" strings and other with the values, so one can be aligned left and the other right
-    for (const FactPath& factPath : _facts) {
+    /*for (const FactPath& factPath : _facts) {
         Fact* fact;
         //Vehicle facts
         if(factPath.groupName == vehicleFactGroupName){
@@ -159,7 +148,7 @@ void SubtitleWriter::_captureTelemetry()
         valuesStrings << QStringLiteral("%2 %3").arg(fact->cookedValueString())
                                                 .arg(fact->cookedUnits());
         namesStrings << QStringLiteral("%1:").arg(fact->shortDescription());
-    }
+    }*/
 
     // The time to start displaying this subtitle text
     QTime start = _lastEndTime;
