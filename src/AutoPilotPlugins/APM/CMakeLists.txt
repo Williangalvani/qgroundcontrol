@@ -29,6 +29,7 @@ SOURCES
     APMSubFrameComponent.qml
     APMSubFrameComponentSummary.qml
     APMSubMotorComponent.qml
+    APMSubParamDownloader.qml
     APMTuningComponentCopter.qml
     APMTuningComponentSub.qml
 

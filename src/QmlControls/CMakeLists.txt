@@ -42,6 +42,7 @@ add_library(QmlControls
 add_custom_target(QmlControlsQml
 	SOURCES
 		APMSubMotorDisplay.qml
+		APMSubParamDownloader.qml
 		AppMessages.qml
 		AxisMonitor.qml
 		ClickableColor.qml

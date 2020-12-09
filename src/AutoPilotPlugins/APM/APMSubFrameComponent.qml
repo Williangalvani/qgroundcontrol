@@ -19,6 +19,7 @@ import QGroundControl.Palette       1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Controllers   1.0
+import QGroundControl.APM 1.0
 
 SetupPage {
     id:                 subFramePage

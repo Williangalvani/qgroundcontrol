@@ -1,0 +1,4 @@
+Module QGroundControl.APM
+
+singleton APMSubParamDownloader 1.0 APMSubParamDownloader.qml
+
