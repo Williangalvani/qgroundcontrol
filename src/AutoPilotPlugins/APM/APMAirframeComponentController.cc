@@ -217,7 +217,7 @@ void APMAirframeComponentController::loadParameters(const QString& paramFile)
 {
     qgcApp()->setOverrideCursor(Qt::WaitCursor);
 
-    QString paramFileUrl = QStringLiteral("https://api.github.com/repos/ArduPilot/ardupilot/contents/Tools/Frame_params/%1?ref=master");
+    QString paramFileUrl = QStringLiteral("https://api.github.com/repos/williangalvani/ardupilot/contents/Tools/Frame_params/%1?ref=params");
 
     QGCFileDownload* downloader = new QGCFileDownload(this);
     connect(downloader, &QGCFileDownload::downloadComplete, this, &APMAirframeComponentController::_githubJsonDownloadComplete);
