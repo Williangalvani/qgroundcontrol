@@ -206,6 +206,7 @@ void APMAirframeComponentController::_loadParametersFromDownloadFile(const QStri
         if (parameterExists(-1, aux.at(0))) {
             Fact *param = getParameterFact(-1, aux.at(0));
             param->setRawValue(QVariant::fromValue(aux.at(1)));
+            qWarning() << "PARAM " << aux.at(0);
         }
     }
     qgcApp()->restoreOverrideCursor();

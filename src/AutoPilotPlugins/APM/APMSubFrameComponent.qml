@@ -189,6 +189,23 @@ SetupPage {
             }
 
             Flow {
+                function getParametersFile(frame) {
+                    let filename = frame === "heavy" ? "Sub/bluerov2-heavy" : "Sub/bluerov2"
+
+                    if(globals.activeVehicle.versionCompare(4 ,0 ,2) >= 0) {
+                        return filename + "-4_0_2.params"
+                    }
+                    if(globals.activeVehicle.versionCompare(3 ,5 ,4) >= 0) {
+                        return filename + "-3_5_4.params"
+                    }
+                    if(globals.activeVehicle.versionCompare(3 ,5 ,2) >= 0) {
+                        return filename + "-3_5_2.params"
+                    }
+                    if(globals.activeVehicle.versionCompare(3 ,5 ,2) < 0) {
+                        return filename + "-3_5.params"
+                    }
+                }
+
                 anchors.margins:    _margins
                 anchors.top:        applyParamsText.bottom
                 anchors.left:       parent.left
@@ -200,10 +217,10 @@ SetupPage {
                 QGCButton {
                     width:  parent.width
                     text:   "Blue Robotics BlueROV2"
-                    property var file:   _oldFW ? "Sub/bluerov2-3_5.params" : "Sub/bluerov2-3_5_2.params"
 
                     onClicked : {
-                        controller.loadParameters(file)
+                        console.log(parent.getParametersFile())
+                        controller.loadParameters(parent.getParametersFile())
                         hideDialog()
                     }
                 }
@@ -211,10 +228,10 @@ SetupPage {
                 QGCButton {
                     width:  parent.width
                     text:   "Blue Robotics BlueROV2 Heavy"
-                    property var file:  "Sub/bluerov2-heavy-3_5_2.params"
 
                     onClicked : {
-                        controller.loadParameters(file)
+                        console.log(parent.getParametersFile("heavy"))
+                        controller.loadParameters(parent.getParametersFile("heavy"))
                         hideDialog()
                     }
                 }
