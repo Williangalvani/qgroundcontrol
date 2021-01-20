@@ -133,7 +133,7 @@ Item {
         }
         Repeater {
             id:     jsButtonActionRepeater
-            model:  _activeJoystick ? Math.min(_activeJoystick.totalButtonCount, _maxButtons) : 0
+            model:  _activeJoystick ? Math.min(_activeJoystick.totalButtonCount, _maxButtonsMavlink) : 0
 
             Row {
                 spacing: ScreenTools.defaultFontPixelWidth

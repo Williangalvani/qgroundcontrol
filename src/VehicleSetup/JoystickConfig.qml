@@ -29,6 +29,7 @@ SetupPage {
     pageDescription:    "" // qsTr("Joystick Setup is used to configure and calibrate joysticks.")
 
     readonly property real  _maxButtons:         64
+    readonly property real  _maxButtonsMavlink:  16 // Max number of button we can send in MANUAL_CONTROL
     readonly property real  _attitudeLabelWidth: ScreenTools.defaultFontPixelWidth * 12
 
     Connections {
