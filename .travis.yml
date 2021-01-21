@@ -43,18 +43,6 @@ jobs:
           osx_image: xcode11.3
           env: SPEC=macx-clang CONFIG=installer
           sudo: required
-        - stage: "Google Play Upload"
-          name: "Google Play Upload"
-          dist: trusty
-          language: android
-          env: SPEC=google-play-upload
-          sudo: false
-          before_install: skip
-          install: skip
-          before_script: skip
-          before_deploy: skip
-          after_deploy: skip
-          script: echo "Google Play Upload"
         
 # iOS build needs updating Qt to > 5.10
 #        - os: osx
