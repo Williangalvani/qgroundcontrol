@@ -12,6 +12,7 @@ import QtQuick 2.3
 import QGroundControl               1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Controls      1.0
+import QGroundControl.Vehicle       1.0
 
 Rectangle {
     anchors.margins:    -ScreenTools.defaultFontPixelHeight
@@ -22,7 +23,8 @@ Rectangle {
     visible:            _noGPSLockVisible || _prearmErrorVisible
 
     property var  _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
-    property bool _noGPSLockVisible:    _activeVehicle && !_activeVehicle.coordinate.isValid
+    property bool _vehicleHasGps:       _activeVehicle && (_activeVehicle.sensorsPresentBits & Vehicle.SysStatusSensorGPS)
+    property bool _noGPSLockVisible:    _vehicleHasGps && !_activeVehicle.coordinate.isValid
     property bool _prearmErrorVisible:  _activeVehicle && !_activeVehicle.armed && _activeVehicle.prearmError
 
     Column {
