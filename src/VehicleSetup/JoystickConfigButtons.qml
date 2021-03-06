@@ -159,18 +159,52 @@ Item {
                     }
                 }
 
-                FactComboBox {
-                    id:         mainJSButtonActionCombo
-                    width:      ScreenTools.defaultFontPixelWidth * 15
-                    fact:       controller.parameterExists(-1, "BTN"+index+"_FUNCTION") ? controller.getParameterFact(-1, "BTN" + index + "_FUNCTION") : null;
-                    indexModel: false
-                }
+                QGCComboBox {
+                    id:                         buttonActionCombo
+                    width:                      ScreenTools.defaultFontPixelWidth * 26
+                    property Fact fact:         controller.parameterExists(-1, "BTN"+index+"_FUNCTION") ? controller.getParameterFact(-1, "BTN" + index + "_FUNCTION") : null
+                    property var factOptions:   fact ? fact.enumStrings : [];
+                    model:                      [..._activeJoystick.assignableActionTitles, ...factOptions]
+                    property var isFwAction:    currentIndex >= _activeJoystick.assignableActionTitles.length
 
+                    function _findCurrentButtonAction() {
+                        // Find the index in the dropdown of the current action, checks FW and QGC actions
+                        if(_activeJoystick) {
+                            if (fact && fact.value > 0) {
+                                // This is a firmware function
+                                currentIndex = _activeJoystick.assignableActionTitles.length + fact.value
+                                // For sanity reasons, make sure qgc is set to "no action" if the firmware is set to do something
+                                _activeJoystick.setButtonAction(modelData, "No Action")
+                            } else {
+                                // If there is not firmware function, check QGC ones
+                                var i = find(_activeJoystick.buttonActions[modelData])
+                                currentIndex = i
+                            }
+                        }
+                    }
+
+                    Component.onCompleted:  _findCurrentButtonAction()
+                    onModelChanged:         _findCurrentButtonAction()
+                    onActivated:            function (optionIndex) {
+                        var func = textAt(optionIndex)
+                        if (factOptions.indexOf(func) > -1) {
+                            // This is a FW action, set parameter to the action and set QGC's handler to No Action
+                            controller.getParameterFact(-1, "BTN" + index + "_FUNCTION").value = factOptions.indexOf(func)
+                            _activeJoystick.setButtonAction(modelData, "No Action")
+                        } else {
+                            // This is a QGC action, set parameters to Disabled and QGC to the desired action
+                            controller.getParameterFact(-1, "BTN" + index + "_FUNCTION").value = 0
+                            controller.getParameterFact(-1, "BTN" + index + "_SFUNCTION").value = 0
+                            _activeJoystick.setButtonAction(modelData, func)
+                        }
+                    }
+                }
                 FactComboBox {
                     id:         shiftJSButtonActionCombo
-                    width:      ScreenTools.defaultFontPixelWidth * 15
+                    width:      ScreenTools.defaultFontPixelWidth * 26
                     fact:       controller.parameterExists(-1, "BTN"+index+"_SFUNCTION") ? controller.getParameterFact(-1, "BTN" + index + "_SFUNCTION") : null;
                     indexModel: false
+                    visible:    buttonActionCombo.isFwAction
                 }
             }
         }
